@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OnyxIQ Marketing Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              black: '#0A0A0A',
+              card: '#12121A',
+              border: '#232336',
+              indigo: '#6366F1',
+              emerald: '#10B981',
+              pink: '#EC4899',
+              amber: '#F59E0B',
+              blue: '#0A66C2',
+              cyan: '#06B6D4'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0A0A0A; color: #E2E8F0; font-family: 'Inter', sans-serif; }
+    .glass-card { background: rgba(18, 18, 26, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card-hover:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-2px); transition: all 0.2s ease; }
+    .glow-indigo { box-shadow: 0 0 24px -4px rgba(99, 102, 241, 0.35); }
+    .glow-emerald { box-shadow: 0 0 24px -4px rgba(16, 185, 129, 0.35); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0A0A0A; }
+    ::-webkit-scrollbar-thumb { background: #2A2A3E; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366F1; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP APP NAV -->
+  <header class="border-b border-brand-border bg-[#0E0E16]/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-wider text-white">ONYXIQ</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-mono">MARKETING CORE</span>
+          </div>
+          <p class="text-[11px] text-gray-400 font-mono">Autonomous Agency-Agents Orchestrator</p>
+        </div>
+      </div>
+
+      <!-- Central Nav Tabs -->
+      <nav class="flex space-x-1 bg-black/40 p-1 rounded-xl border border-brand-border/60">
+        <button onclick="switchTab('roster')" id="tab-btn-roster" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition bg-indigo-600 text-white shadow">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          <span>Agency Roster</span>
+        </button>
+        <button onclick="switchTab('analyst')" id="tab-btn-analyst" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+          <span>Universal SaaS Analyst</span>
+        </button>
+        <button onclick="switchTab('studio')" id="tab-btn-studio" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
+          <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i>
+          <span>Content Studio</span>
+        </button>
+        <button onclick="switchTab('queue')" id="tab-btn-queue" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Publishing Pipeline</span>
+          <span id="queue-count-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-mono">0</span>
+        </button>
+      </nav>
+
+      <!-- System Health Indicator -->
+      <div class="flex items-center space-x-3">
+        <div class="text-right hidden sm:block">
+          <div class="flex items-center space-x-1.5 justify-end">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-mono font-medium text-emerald-400">marketing.onyxiq.in</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-mono">Oracle VM • Port 4300</span>
+        </div>
+        <button onclick="loadQueue(); loadRoster();" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 transition" title="Refresh Telemetry">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: AGENCY ROSTER (TEAM OVERVIEW)                                  -->
+    <!-- ===================================================================== -->
+    <section id="tab-roster" class="tab-pane space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-brand-card via-[#1A1A2E] to-brand-card p-6 rounded-2xl border border-brand-border">
+        <div>
+          <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span>🏛️</span> OnyxIQ Autonomous Marketing Team
+          </h1>
+          <p class="text-sm text-gray-400 mt-1 max-w-2xl">
+            A full-stack, autonomous inbound and outbound agency built on the <strong class="text-indigo-400">msitarzewski/agency-agents</strong> framework. Plug in ANY SaaS product to generate high-converting authority content, carousels, and Hormozi Grand Slam Offers.
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="switchTab('analyst')" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/25 transition">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Analyze New SaaS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Agent Categories Filter -->
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <div class="flex items-center gap-2" id="roster-filters">
+          <button onclick="filterRoster('ALL')" class="filter-btn active text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 text-white">All Agents (8)</button>
+          <button onclick="filterRoster('Strategist & Analyst')" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">Strategists & Analysts</button>
+          <button onclick="filterRoster('Copywriter & Creator')" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">Copywriters & Creators</button>
+          <button onclick="filterRoster('Publishing & Operations')" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">Publishing & Ops</button>
+        </div>
+        <div class="text-xs font-mono text-gray-400">
+          Engine: <span class="text-emerald-400 font-semibold">Groq Llama 3.3 70B</span>
+        </div>
+      </div>
+
+      <!-- Agent Grid Cards -->
+      <div id="roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: UNIVERSAL SAAS ANALYST & OFFER ARCHITECT                       -->
+    <!-- ===================================================================== -->
+    <section id="tab-analyst" class="tab-pane hidden space-y-6">
+      <div class="bg-brand-card p-6 rounded-2xl border border-brand-border space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🧠</span> Universal SaaS Product Analyst & Offer Architect
+            </h2>
+            <p class="text-xs text-gray-400 mt-1">
+              Deconstructs ANY SaaS product into an Alex Hormozi Value Equation Grand Slam Offer, Friday-afternoon nightmare, and 4 content pillars.
+            </p>
+          </div>
+          <!-- Quick Seeds -->
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-gray-400 font-mono">Quick Seed:</span>
+            <button onclick="loadSeed('medisuite')" class="text-xs px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition">MediSuite (Healthcare)</button>
+            <button onclick="loadSeed('flowinvoice')" class="text-xs px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20 transition">FlowInvoice (FinTech)</button>
+            <button onclick="loadSeed('talentradar')" class="text-xs px-2.5 py-1 rounded bg-pink-500/10 text-pink-400 border border-pink-500/30 hover:bg-pink-500/20 transition">TalentRadar (DevTools)</button>
+          </div>
+        </div>
+
+        <!-- SaaS Input Form -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">SaaS Product Name</label>
+            <input type="text" id="saas-name" placeholder="e.g. MediSuite AI, FlowInvoice, AcmeCloud" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Category / Domain</label>
+            <input type="text" id="saas-category" placeholder="e.g. Healthcare Clinical OS, FinTech, DevTools" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Target Decision Maker (ICP)</label>
+            <input type="text" id="saas-target-audience" placeholder="e.g. Clinic Owners, VPs of Eng, Agency Founders" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
+          </div>
+          <div class="md:col-span-3">
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Product Pitch, URL, or Core Feature Description</label>
+            <textarea id="saas-description" rows="3" placeholder="Paste product brief, landing page text, or core capabilities... (e.g. 30-second ambient voice prescriptions, automated WhatsApp clinic bot, drops no-shows by 85%)" class="w-full bg-black/50 border border-brand-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button onclick="runSaaSAnalysis()" id="btn-analyze-saas" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+            <span>Deconstruct SaaS & Synthesize Offer</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Analysis Results Dashboard (Hidden initially) -->
+      <div id="saas-analysis-results" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span>Synthesized SaaS Positioning Intelligence</span>
+          </h3>
+          <button onclick="sendProfileToStudio()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            <span>Send to Inbound Content Studio</span>
+          </button>
+        </div>
+
+        <!-- 3-Column Diagnostic Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Card 1: ICP & Nightmare -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-pink-500 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono text-pink-400 font-bold uppercase tracking-wider">Target ICP & Pain</span>
+              <span class="text-xs">🎯</span>
+            </div>
+            <h4 id="res-icp-title" class="font-bold text-white text-sm">Target ICP</h4>
+            <div class="bg-black/40 p-3 rounded-xl border border-white/5 space-y-2 text-xs">
+              <div>
+                <span class="text-gray-400 block text-[10px] uppercase font-mono">Friday Headache:</span>
+                <p id="res-icp-frustration" class="text-gray-200 mt-0.5">...</p>
+              </div>
+              <div>
+                <span class="text-gray-400 block text-[10px] uppercase font-mono">Cost of Inaction:</span>
+                <p id="res-icp-inaction" class="text-red-300 mt-0.5">...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Breakthrough Mechanism -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-indigo-500 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono text-indigo-400 font-bold uppercase tracking-wider">The New Opportunity</span>
+              <span class="text-xs">⚡</span>
+            </div>
+            <h4 id="res-solution-title" class="font-bold text-white text-sm">Breakthrough Mechanism</h4>
+            <p id="res-solution-text" class="text-xs text-gray-300 leading-relaxed">...</p>
+            <div class="pt-2 border-t border-white/5">
+              <span class="text-[10px] font-mono text-gray-400 uppercase block mb-1">Key Features:</span>
+              <ul id="res-features-list" class="text-xs text-gray-300 space-y-1"></ul>
+            </div>
+          </div>
+
+          <!-- Card 3: Alex Hormozi Grand Slam Offer -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-500 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-mono text-amber-400 font-bold uppercase tracking-wider">Grand Slam Offer</span>
+              <span class="text-xs">🏆</span>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div class="bg-black/40 p-2.5 rounded-lg border border-white/5">
+                <span class="text-[10px] font-mono text-amber-400 block">Dream Outcome:</span>
+                <span id="res-offer-outcome" class="text-white font-medium">...</span>
+              </div>
+              <div class="bg-black/40 p-2.5 rounded-lg border border-white/5">
+                <span class="text-[10px] font-mono text-emerald-400 block">Risk-Reversal Guarantee:</span>
+                <span id="res-offer-guarantee" class="text-emerald-300">...</span>
+              </div>
+              <div class="bg-black/40 p-2.5 rounded-lg border border-white/5">
+                <span class="text-[10px] font-mono text-indigo-400 block">High-Converting CTA:</span>
+                <span id="res-offer-cta" class="text-indigo-300 font-mono text-[11px]">...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Content Pillars Preview -->
+        <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-3">
+          <h4 class="text-xs font-bold text-white uppercase font-mono tracking-wider flex items-center gap-2">
+            <span>📚</span> 4 Strategic Inbound Content Pillars & Lead Magnet
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+              <span class="text-[10px] text-pink-400 font-mono block mb-1">Pillar 1: Contrarian Take</span>
+              <p id="res-pillar-contrarian" class="text-gray-300">...</p>
+            </div>
+            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+              <span class="text-[10px] text-amber-400 font-mono block mb-1">Pillar 2: Bottleneck Teardown</span>
+              <p id="res-pillar-bottleneck" class="text-gray-300">...</p>
+            </div>
+            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+              <span class="text-[10px] text-indigo-400 font-mono block mb-1">Pillar 3: 3 Levers</span>
+              <ul id="res-pillar-levers" class="text-gray-300 space-y-1 text-[11px]"></ul>
+            </div>
+            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+              <span class="text-[10px] text-emerald-400 font-mono block mb-1">Pillar 4: Lead Magnet Idea</span>
+              <p id="res-pillar-magnet" class="text-emerald-300 font-medium">...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: INBOUND CONTENT STUDIO (GENERATION WORKBENCH)                  -->
+    <!-- ===================================================================== -->
+    <section id="tab-studio" class="tab-pane hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Controls Column (4 cols) -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-4">
+            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+              <span>🎛️</span> Generation Controls
+            </h3>
+
+            <!-- SaaS Selector -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1">Target SaaS Profile</label>
+              <select id="studio-saas-select" onchange="onStudioSaaSChange()" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
+                <option value="current">Current Synthesized Profile</option>
+                <option value="medisuite">MediSuite AI (Clinical OS)</option>
+                <option value="flowinvoice">FlowInvoice (FinTech)</option>
+                <option value="talentradar">TalentRadar AI (DevTools)</option>
+              </select>
+            </div>
+
+            <!-- Platform / Format -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1">Channel & Format</label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="selectChannel('linkedin')" class="chan-btn active px-3 py-2 rounded-lg bg-blue-600/20 text-blue-300 border border-blue-500/30 flex items-center gap-1.5 font-medium">
+                  <span>💼</span> LinkedIn Post
+                </button>
+                <button type="button" onclick="selectChannel('carousel')" class="chan-btn px-3 py-2 rounded-lg bg-black/40 text-gray-400 border border-brand-border hover:text-white flex items-center gap-1.5 font-medium">
+                  <span>🎠</span> 6-Slide Carousel
+                </button>
+                <button type="button" onclick="selectChannel('twitter')" class="chan-btn px-3 py-2 rounded-lg bg-black/40 text-gray-400 border border-brand-border hover:text-white flex items-center gap-1.5 font-medium">
+                  <span>🐦</span> 5-Tweet Thread
+                </button>
+                <button type="button" onclick="selectChannel('repurpose')" class="chan-btn px-3 py-2 rounded-lg bg-black/40 text-gray-400 border border-brand-border hover:text-white flex items-center gap-1.5 font-medium">
+                  <span>📡</span> Omni-Bundle (4)
+                </button>
+              </div>
+            </div>
+
+            <!-- Custom Angle / Topic -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1">Custom Angle / Topic (Optional)</label>
+              <textarea id="studio-topic" rows="2" placeholder="e.g. Why typing prescriptions costs clinics ₹1.5L/mo, or leave blank to use synthesized contrarian take..." class="w-full bg-black/50 border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+            </div>
+
+            <button onclick="triggerContentGeneration()" id="btn-generate-content" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>Generate Content</span>
+            </button>
+          </div>
+
+          <!-- Active Agency Agent Helper Card -->
+          <div class="glass-card p-4 rounded-xl border border-brand-border text-xs space-y-2">
+            <div class="flex items-center gap-2 text-indigo-400 font-mono text-[11px] font-bold">
+              <span id="active-agent-icon">💼</span>
+              <span id="active-agent-name">LinkedIn Content Creator</span>
+            </div>
+            <p id="active-agent-desc" class="text-gray-400 text-[11px] leading-relaxed">
+              Enforcing: 3 Hook Variants, Line 1 < 10 words, Line 2 blank, 0 links in body, 3-5 hyper-targeted hashtags, Golden Hour organic CTA.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Output Editor Column (8 cols) -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border/60 pb-3">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+                  <span>Live Content Workbench</span>
+                </span>
+                <span id="char-counter" class="text-[10px] font-mono px-2 py-0.5 rounded bg-black/40 text-gray-400 border border-white/5">0 chars</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="runMasterPolisher()" class="px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-medium flex items-center gap-1 transition" title="Purge AI tells and polish formatting">
+                  <span>💎</span> Polish
+                </button>
+                <button onclick="copyGeneratedContent()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-200 text-xs font-medium flex items-center gap-1 transition">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+                </button>
+                <button onclick="saveToPublishQueue()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1 shadow-md shadow-emerald-600/25 transition">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i> Queue for Publishing
+                </button>
+              </div>
+            </div>
+
+            <!-- Hook Switcher (Shown if LinkedIn) -->
+            <div id="hook-switcher-bar" class="hidden p-2 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between gap-2 text-xs font-mono">
+              <span class="text-[11px] text-gray-400">Quick Hook:</span>
+              <div class="flex gap-1.5">
+                <button onclick="applyHook(1)" class="px-2.5 py-1 rounded bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[11px]">Hook 1 (Curiosity)</button>
+                <button onclick="applyHook(2)" class="px-2.5 py-1 rounded bg-pink-600/20 hover:bg-pink-600/40 text-pink-300 text-[11px]">Hook 2 (Contrarian)</button>
+                <button onclick="applyHook(3)" class="px-2.5 py-1 rounded bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 text-[11px]">Hook 3 (Metric)</button>
+              </div>
+            </div>
+
+            <!-- Content Editable Output -->
+            <textarea id="studio-editor" rows="18" placeholder="Generated copy will appear here... Click 'Generate Content' to start." class="w-full bg-[#0A0A10] border border-brand-border/60 rounded-xl p-4 text-xs text-gray-200 focus:outline-none focus:border-indigo-500 font-mono leading-relaxed resize-y"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: PUBLISHING PIPELINE & QUEUE                                    -->
+    <!-- ===================================================================== -->
+    <section id="tab-queue" class="tab-pane hidden space-y-6">
+      <div class="flex items-center justify-between bg-brand-card p-6 rounded-2xl border border-brand-border">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span>📬</span> Social Publishing Pipeline & Review Desk
+          </h2>
+          <p class="text-xs text-gray-400 mt-1">
+            Review generated drafts in <span class="font-mono text-amber-300">WAITING</span> status, toggle Boss Approval, and publish via Buffer.
+          </p>
+        </div>
+        <button onclick="loadQueue()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Sync Pipeline</span>
+        </button>
+      </div>
+
+      <!-- Posts List -->
+      <div id="posts-container" class="space-y-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AGENT PERSONA MODAL -->
+  <div id="agent-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-card max-w-2xl w-full rounded-2xl border border-brand-border p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <div class="flex items-center gap-3">
+          <span id="modal-emoji" class="text-2xl p-2 rounded-xl bg-white/5 border border-white/10">🤖</span>
+          <div>
+            <h3 id="modal-name" class="font-bold text-white text-base">Agent Name</h3>
+            <span id="modal-category" class="text-[11px] font-mono text-indigo-400">Category</span>
+          </div>
+        </div>
+        <button onclick="closeModal()" class="p-1 rounded-lg text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <span class="text-gray-400 font-mono text-[10px] uppercase block">Mission & Role:</span>
+          <p id="modal-role" class="text-gray-200 mt-0.5 leading-relaxed">...</p>
+        </div>
+        <div>
+          <span class="text-gray-400 font-mono text-[10px] uppercase block">Core Guidelines & Rules:</span>
+          <ul id="modal-guidelines" class="list-disc list-inside text-gray-300 mt-1 space-y-1"></ul>
+        </div>
+        <div class="bg-black/50 p-3 rounded-xl border border-white/5 flex items-center justify-between font-mono text-[11px]">
+          <span class="text-gray-400">Underlying Model:</span>
+          <span id="modal-model" class="text-emerald-400 font-semibold">groq/llama-3.3-70b-versatile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let currentRoster = [];
+    let currentProfile = null;
+    let selectedChannel = 'linkedin';
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+        btn.classList.add('text-gray-400');
+      });
+
+      const pane = document.getElementById(`tab-${tabId}`);
+      const btn = document.getElementById(`tab-btn-${tabId}`);
+      if (pane) pane.classList.remove('hidden');
+      if (btn) {
+        btn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+        btn.classList.remove('text-gray-400');
+      }
+
+      if (tabId === 'roster') loadRoster();
+      if (tabId === 'queue') loadQueue();
+    }
+
+    // Load Roster
+    async function loadRoster() {
+      try {
+        const res = await fetch('/api/agents');
+        const data = await res.json();
+        if (data.success) {
+          currentRoster = data.roster;
+          renderRoster(currentRoster);
+        }
+      } catch (err) {
+        console.error('Failed to load roster:', err);
+      }
+    }
+
+    function renderRoster(agents) {
+      const grid = document.getElementById('roster-grid');
+      grid.innerHTML = agents.map(agent => `
+        <div class="glass-card glass-card-hover p-5 rounded-2xl flex flex-col justify-between cursor-pointer space-y-3" onclick="openAgentModal('${agent.id}')">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl p-2 rounded-xl bg-white/5 border border-white/10">${agent.emoji}</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${agent.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-gray-500/10 text-gray-400'}">${agent.status}</span>
+            </div>
+            <h4 class="font-bold text-white text-sm line-clamp-1">${agent.name}</h4>
+            <p class="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">${agent.role}</p>
+          </div>
+          <div class="pt-3 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-gray-400">
+            <span>${agent.category}</span>
+            <span class="text-indigo-400 font-semibold flex items-center gap-1">Inspect <i data-lucide="chevron-right" class="w-3 h-3"></i></span>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterRoster(category) {
+      document.querySelectorAll('#roster-filters .filter-btn').forEach(btn => {
+        btn.classList.remove('bg-white/10', 'text-white');
+        btn.classList.add('text-gray-400');
+      });
+      event.target.classList.add('bg-white/10', 'text-white');
+      event.target.classList.remove('text-gray-400');
+
+      if (category === 'ALL') {
+        renderRoster(currentRoster);
+      } else {
+        const filtered = currentRoster.filter(a => a.category === category);
+        renderRoster(filtered);
+      }
+    }
+
+    function openAgentModal(agentId) {
+      const agent = currentRoster.find(a => a.id === agentId);
+      if (!agent) return;
+      document.getElementById('modal-emoji').innerText = agent.emoji;
+      document.getElementById('modal-name').innerText = agent.name;
+      document.getElementById('modal-category').innerText = agent.category;
+      document.getElementById('modal-role').innerText = agent.role;
+      document.getElementById('modal-model').innerText = agent.model;
+      document.getElementById('modal-guidelines').innerHTML = agent.guidelines.map(g => `<li>${g}</li>`).join('');
+      document.getElementById('agent-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('agent-modal').classList.add('hidden');
+    }
+
+    // Load Quick Seeds
+    async function loadSeed(seedKey) {
+      try {
+        const seeds = {
+          medisuite: {
+            name: 'MediSuite AI',
+            category: 'Healthcare Clinical Operations SaaS',
+            targetAudience: 'Private Clinic Owners, Independent Doctors, and OPD Managers',
+            description: 'Ambient voice-to-prescription in 30 seconds combined with an autonomous WhatsApp clinic assistant that automates bookings and reminders with zero app downloads. Drops no-shows by 85%.'
+          },
+          flowinvoice: {
+            name: 'FlowInvoice',
+            category: 'FinTech / Cash Flow Automation',
+            targetAudience: 'Digital Agency Owners, Consultancies, and High-Ticket Freelancers',
+            description: 'Automated invoice collection and WhatsApp payment reminders with instant 1-click UPI links. Gets service agencies paid 3x faster without awkward manual texts.'
+          },
+          talentradar: {
+            name: 'TalentRadar AI',
+            category: 'Developer Tools & Hiring Intelligence',
+            targetAudience: 'VPs of Engineering, CTOs, and Technical Talent Leads at Scaling Startups',
+            description: 'AI evaluation engine that assesses software engineer candidates on actual production GitHub pull requests and real system diffs instead of leetcode trivia.'
+          }
+        };
+
+        const s = seeds[seedKey];
+        if (!s) return;
+        document.getElementById('saas-name').value = s.name;
+        document.getElementById('saas-category').value = s.category;
+        document.getElementById('saas-target-audience').value = s.targetAudience;
+        document.getElementById('saas-description').value = s.description;
+
+        await runSaaSAnalysis();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Run SaaS Analysis
+    async function runSaaSAnalysis() {
+      const btn = document.getElementById('btn-analyze-saas');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Analyzing SaaS Mechanics...</span>`;
+      lucide.createIcons();
+
+      const payload = {
+        name: document.getElementById('saas-name').value,
+        category: document.getElementById('saas-category').value,
+        targetAudience: document.getElementById('saas-target-audience').value,
+        description: document.getElementById('saas-description').value,
+      };
+
+      try {
+        const res = await fetch('/api/analyze-saas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentProfile = data.profile;
+          renderAnalysisResults(currentProfile);
+        }
+      } catch (err) {
+        alert('Analysis failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="cpu" class="w-4 h-4"></i><span>Deconstruct SaaS & Synthesize Offer</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    function renderAnalysisResults(p) {
+      document.getElementById('res-icp-title').innerText = p.targetAudience.title;
+      document.getElementById('res-icp-frustration').innerText = p.targetAudience.frustration;
+      document.getElementById('res-icp-inaction').innerText = p.targetAudience.costOfInaction;
+
+      document.getElementById('res-solution-title').innerText = p.name + ' Paradigm Shift';
+      document.getElementById('res-solution-text').innerText = p.breakthroughSolution;
+      document.getElementById('res-features-list').innerHTML = p.keyFeatures.map(f => `<li>• ${f}</li>`).join('');
+
+      document.getElementById('res-offer-outcome').innerText = p.grandSlamOffer.dreamOutcome;
+      document.getElementById('res-offer-guarantee').innerText = p.grandSlamOffer.guarantee;
+      document.getElementById('res-offer-cta').innerText = p.grandSlamOffer.cta;
+
+      document.getElementById('res-pillar-contrarian').innerText = p.contentPillars.contrarianTake;
+      document.getElementById('res-pillar-bottleneck').innerText = p.contentPillars.bottleneckTeardown;
+      document.getElementById('res-pillar-levers').innerHTML = p.contentPillars.framework3Levers.map(l => `<li>${l}</li>`).join('');
+      document.getElementById('res-pillar-magnet').innerText = p.contentPillars.leadMagnetIdea;
+
+      document.getElementById('saas-analysis-results').classList.remove('hidden');
+    }
+
+    function sendProfileToStudio() {
+      if (!currentProfile) return;
+      document.getElementById('studio-topic').value = currentProfile.contentPillars.contrarianTake;
+      switchTab('studio');
+    }
+
+    // Studio Channel Select
+    function selectChannel(chan) {
+      selectedChannel = chan;
+      document.querySelectorAll('.chan-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-blue-600/20', 'text-blue-300', 'border-blue-500/30');
+        btn.classList.add('bg-black/40', 'text-gray-400');
+      });
+      event.currentTarget.classList.add('active', 'bg-blue-600/20', 'text-blue-300', 'border-blue-500/30');
+      event.currentTarget.classList.remove('bg-black/40', 'text-gray-400');
+
+      const hookBar = document.getElementById('hook-switcher-bar');
+      if (chan === 'linkedin') hookBar.classList.remove('hidden');
+      else hookBar.classList.add('hidden');
+    }
+
+    async function triggerContentGeneration() {
+      const btn = document.getElementById('btn-generate-content');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Generating Agency Copy...</span>`;
+      lucide.createIcons();
+
+      // Ensure profile
+      const saasSelect = document.getElementById('studio-saas-select').value;
+      let profileToUse = currentProfile;
+      if (saasSelect !== 'current' || !profileToUse) {
+        const seedMap = {
+          medisuite: 'MediSuite AI',
+          flowinvoice: 'FlowInvoice',
+          talentradar: 'TalentRadar AI'
+        };
+        const pRes = await fetch('/api/analyze-saas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: seedMap[saasSelect] || 'SaaS Platform' })
+        });
+        const pData = await pRes.json();
+        profileToUse = pData.profile;
+      }
+
+      const customAngle = document.getElementById('studio-topic').value;
+
+      try {
+        const res = await fetch('/api/generate-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile: profileToUse,
+            platform: selectedChannel,
+            customAngle
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const editor = document.getElementById('studio-editor');
+          editor.value = data.content;
+          updateCharCount();
+        }
+      } catch (err) {
+        alert('Generation failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Generate Content</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    async function runMasterPolisher() {
+      const editor = document.getElementById('studio-editor');
+      if (!editor.value.trim()) return;
+
+      try {
+        const res = await fetch('/api/polish-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: editor.value, platform: selectedChannel })
+        });
+        const data = await res.json();
+        if (data.success) {
+          editor.value = data.polished;
+          updateCharCount();
+        }
+      } catch (err) {
+        alert('Polisher failed: ' + err.message);
+      }
+    }
+
+    function applyHook(hookNum) {
+      const editor = document.getElementById('studio-editor');
+      const text = editor.value;
+      const hookRegex = new RegExp(`•\\s*Hook\\s*${hookNum}[^:]*:\\s*([^\\n]+)`, 'i');
+      const match = text.match(hookRegex);
+      if (match && match[1]) {
+        alert(`Selected Hook ${hookNum}: "${match[1]}"\n\nEnsure this hook is placed at the top of your post!`);
+      }
+    }
+
+    function updateCharCount() {
+      const text = document.getElementById('studio-editor').value;
+      document.getElementById('char-counter').innerText = `${text.length} chars`;
+    }
+    document.getElementById('studio-editor').addEventListener('input', updateCharCount);
+
+    function copyGeneratedContent() {
+      const text = document.getElementById('studio-editor').value;
+      navigator.clipboard.writeText(text);
+      alert('Content copied to clipboard!');
+    }
+
+    async function saveToPublishQueue() {
+      const text = document.getElementById('studio-editor').value;
+      if (!text.trim()) return alert('Generate content first before queueing!');
+
+      const topic = (currentProfile ? currentProfile.name : 'SaaS Inbound Campaign') + ' - ' + selectedChannel.toUpperCase();
+
+      try {
+        const res = await fetch('/api/posts/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, content: text, channel: selectedChannel })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Post queued successfully! Switching to Publishing Pipeline...');
+          switchTab('queue');
+        }
+      } catch (e) {
+        alert('Failed to save to queue: ' + e.message);
+      }
+    }
+
+    // Load Publishing Queue
+    async function loadQueue() {
+      const container = document.getElementById('posts-container');
+      container.innerHTML = `<div class="text-xs text-gray-400 font-mono flex items-center gap-2"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Loading pipeline...</div>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/posts');
+        const data = await res.json();
+        if (data.success && data.posts) {
+          document.getElementById('queue-count-badge').innerText = data.posts.length;
+          if (data.posts.length === 0) {
+            container.innerHTML = `<div class="p-8 text-center text-xs text-gray-500 font-mono">No posts in queue. Generate content in Studio and click "Queue for Publishing".</div>`;
+            return;
+          }
+
+          container.innerHTML = data.posts.map(post => `
+            <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-3">
+              <div class="flex items-center justify-between border-b border-brand-border/60 pb-2.5">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xs font-mono font-bold text-white">#${post.id}</span>
+                  <span class="text-xs font-semibold text-gray-200">${post.topic}</span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${post.channel || 'linkedin'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full ${post.boss_approval ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'}">
+                    ${post.boss_approval ? '✓ Boss Approved' : '⏳ Pending Approval'}
+                  </span>
+                  ${!post.boss_approval ? `
+                    <button onclick="approvePost(${post.id})" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
+                      1-Click Approve
+                    </button>
+                  ` : `
+                    <button onclick="alert('Post is approved and synced with Post Agent Buffer Dispatcher!')" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                      Dispatch
+                    </button>
+                  `}
+                </div>
+              </div>
+              <pre class="bg-black/50 p-3.5 rounded-xl border border-white/5 text-xs text-gray-300 font-mono whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">${post.content}</pre>
+            </div>
+          `).join('');
+          lucide.createIcons();
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="text-xs text-red-400 font-mono">Failed to load pipeline: ${err.message}</div>`;
+      }
+    }
+
+    async function approvePost(id) {
+      try {
+        const res = await fetch('/api/posts/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadQueue();
+        }
+      } catch (e) {
+        alert('Approval failed: ' + e.message);
+      }
+    }
+
+    // Initial boot
+    document.addEventListener('DOMContentLoaded', () => {
+      loadRoster();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
