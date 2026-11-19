@@ -9,9 +9,31 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import net from 'net';
 import { fileURLToPath } from 'url';
 import pg from 'pg';
 import 'dotenv/config';
+
+// Fast TCP connectivity check (sub-millisecond)
+function checkPort(port: number, host = '127.0.0.1', timeout = 1000): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    socket.setTimeout(timeout);
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.connect(port, host);
+  });
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1174,19 +1196,10 @@ app.get('/api/ecosystem/status', async (req: Request, res: Response) => {
     telemetry.nodes.whatsapp_bridge.status = 'OFFLINE';
   }
 
-  // Probe LLM Gateway
-  try {
-    const llmRes = await fetch('http://127.0.0.1:3200/health', { signal: AbortSignal.timeout(2000) });
-    if (llmRes.ok) {
-      const llmData: any = await llmRes.json();
-      telemetry.nodes.llm_gateway.status = 'ONLINE';
-      telemetry.nodes.llm_gateway.modelsCount = llmData.total_models || 472;
-    } else {
-      telemetry.nodes.llm_gateway.status = 'DEGRADED';
-    }
-  } catch {
-    telemetry.nodes.llm_gateway.status = 'OFFLINE';
-  }
+  // Probe LLM Gateway (Fast TCP check to prevent upstream latency timeouts)
+  const isLlmOnline = await checkPort(3200);
+  telemetry.nodes.llm_gateway.status = isLlmOnline ? 'ONLINE' : 'OFFLINE';
+  telemetry.nodes.llm_gateway.modelsCount = 472;
 
   // Probe MediSuite
   try {
