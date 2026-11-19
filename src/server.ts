@@ -795,6 +795,413 @@ app.post('/api/posts/save', async (req: Request, res: Response) => {
   }
 });
 
+// ═════════════════════════════════════════════════════════════════════════════
+// PHASE 3: CLOSED-LOOP LEAD CONVERSION & MULTI-CHANNEL OUTREACH ENGINE
+// ═════════════════════════════════════════════════════════════════════════════
+
+export interface InboundLead {
+  id: string;
+  name: string;
+  organization: string;
+  phone: string;
+  email?: string;
+  channel: 'linkedin' | 'twitter' | 'whatsapp' | 'outbound';
+  triggerSignal: string;
+  targetSaas: string;
+  status: 'CAPTURED' | 'SCORED' | 'DOSSIER_READY' | 'DISPATCHED' | 'CONVERTED';
+  opportunityScore: number;
+  tier: 'Tier 1 (High Urgency)' | 'Tier 2 (Nurture)' | 'Tier 3 (Passive)';
+  urgencyRouting: string;
+  grandSlamOffer: {
+    dreamOutcome: string;
+    timeDelay: string;
+    effortSacrifice: string;
+    guarantee: string;
+    cta: string;
+  };
+  cadence: {
+    touch1_patternInterrupt: string;
+    touch2_proofOfMechanism: string;
+    touch3_interactiveDemo: string;
+    touch4_softBreakup: string;
+  };
+  dispatchedAt?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+// In-Memory Sovereign Lead Store
+const LEADS_STORE: InboundLead[] = [
+  {
+    id: 'lead-1',
+    name: 'Dr. Rajesh Sharma',
+    organization: 'Apex Multi-Specialty Clinic, Lucknow',
+    phone: '919876543210',
+    email: 'dr.sharma@apexclinic.in',
+    channel: 'linkedin',
+    triggerSignal: "Commented 'CLINIC' on LinkedIn Post #1 (Doctor Burnout & EHR time)",
+    targetSaas: 'MediSuite AI',
+    status: 'DOSSIER_READY',
+    opportunityScore: 94,
+    tier: 'Tier 1 (High Urgency)',
+    urgencyRouting: '< 5 Min Immediate SLA — Active Buyer Signal',
+    grandSlamOffer: {
+      dreamOutcome: 'Eliminate 85% of patient no-shows & recover 2.5 hours/day of doctor charting time',
+      timeDelay: 'Live in 15 minutes, zero staff retraining required',
+      effortSacrifice: 'Zero new hardware, uses clinic existing WhatsApp number and voice notes',
+      guarantee: '14-Day Zero-Risk Trial — if no-shows do not drop by 50%+, pay ₹0',
+      cta: 'Reply "CLINIC" or tap the link to activate your private WhatsApp sandbox number.',
+    },
+    cadence: {
+      touch1_patternInterrupt:
+        'Dr. Sharma, saw your comment regarding doctor charting burnout. Most clinics in Lucknow lose ~₹1.5L/month to missed patient follow-ups. We built MediSuite so you can speak bilingual prescriptions in 30 seconds and let WhatsApp handle scheduling. Free for a 60-second voice demo?',
+      touch2_proofOfMechanism:
+        'Dr. Sharma, here is the exact mechanism: Ambient Voice Rx listens to Hindi/English audio notes and auto-generates structured digital EHRs and WhatsApp reminders. No receptionist needed for follow-up calls.',
+      touch3_interactiveDemo:
+        'Dr. Sharma, test our live AI receptionist right now: Send "HI" to our active WhatsApp bot +91 92780 09883 or tap https://wa.me/919278009883?text=Hi%20Dr%20Sharma%20Demo — experience 30-second automated booking.',
+      touch4_softBreakup:
+        'Dr. Sharma, closing out your file for this month as I know OPD hours are intense. Whenever you want to automate follow-ups and eliminate no-shows, our 14-day risk-free trial is open.',
+    },
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+  },
+  {
+    id: 'lead-2',
+    name: 'Vikram Malhotra',
+    organization: 'Nexus Freight & Logistics, Mumbai',
+    phone: '919820012345',
+    email: 'vikram@nexusfreight.com',
+    channel: 'twitter',
+    triggerSignal: "Replied 'INVOICE' to Twitter Thread on Vendor Reconciliation delays",
+    targetSaas: 'FlowInvoice AI',
+    status: 'SCORED',
+    opportunityScore: 88,
+    tier: 'Tier 1 (High Urgency)',
+    urgencyRouting: '< 15 Min SLA — High Value Financial Bottleneck',
+    grandSlamOffer: {
+      dreamOutcome: 'Zero manual 3-way invoice matching and instant ledger reconciliation',
+      timeDelay: 'Plug into ERP in 10 minutes via REST webhook',
+      effortSacrifice: 'No change to existing vendor submission portals',
+      guarantee: '100% Extraction Accuracy Guarantee or full month credited',
+      cta: 'Reply "INVOICE" to run your messiest multi-page PDF live in our sandbox.',
+    },
+    cadence: {
+      touch1_patternInterrupt:
+        'Hey Vikram, saw your reply on vendor reconciliation headaches. Freight teams bleed 18+ hours/week matching bills of lading with purchase orders. FlowInvoice handles 500 multi-page invoices in 60 seconds with 99.8% precision. Want to see a test run on your format?',
+      touch2_proofOfMechanism:
+        'Vikram, the breakthrough mechanism is Multi-Modal Line Item OCR + Autonomous ERP matching. Even handwritten stamps or tilted PDF scans are parsed without human data entry.',
+      touch3_interactiveDemo:
+        'Hey Vikram, here is a 1-click test: Forward any sample vendor invoice PDF to demo@flowinvoice.onyxiq.in and watch our AI return clean JSON & reconciliation report in 25 seconds.',
+      touch4_softBreakup:
+        'Hey Vikram, pausing outreach so your inbox stays clean. If Month-End closing ever takes more than 2 hours, feel free to grab our 30-day sandbox pass.',
+    },
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+  },
+  {
+    id: 'lead-3',
+    name: 'Dr. Priya Nair',
+    organization: 'City Dental Studio, Bangalore',
+    phone: '919845098765',
+    email: 'priya@citydental.in',
+    channel: 'whatsapp',
+    triggerSignal: 'Incoming WhatsApp DM: "Can your system handle appointment reminders in Kannada and English?"',
+    targetSaas: 'MediSuite AI',
+    status: 'DISPATCHED',
+    opportunityScore: 96,
+    tier: 'Tier 1 (High Urgency)',
+    urgencyRouting: '< 5 Min Immediate SLA — Inbound WhatsApp Lead',
+    grandSlamOffer: {
+      dreamOutcome: 'Autonomous multilingual patient reminders reducing no-shows from 28% to 4%',
+      timeDelay: 'Immediate deployment on existing clinic WhatsApp number',
+      effortSacrifice: 'Zero IT overhead; staff only interacts with patient appointments calendar',
+      guarantee: '14-Day Zero-Risk Trial with full multilingual setup included',
+      cta: 'Send "READY" to test our Kannada voice appointment agent.',
+    },
+    cadence: {
+      touch1_patternInterrupt:
+        'Dr. Priya, absolutely! MediSuite AI natively supports English, Hindi, and Kannada for patient appointment reminders and reschedule requests. Over 85% of patients confirm their slot within 4 minutes on WhatsApp.',
+      touch2_proofOfMechanism:
+        'Dr. Priya, our Baileys-powered clinic gateway detects the patient preferred language and auto-replies with conversational voice or text prompts, updating your doctor schedule in real time.',
+      touch3_interactiveDemo:
+        'Dr. Priya, here is a test you can do right now: Text "Book Dental Appointment" to our bot at +91 92780 09883 or tap https://wa.me/919278009883 to see the multilingual receptionist in action.',
+      touch4_softBreakup:
+        'Dr. Priya, following up once more before letting you attend to patients. If you would like to test our Kannada reminder flow for a 14-day zero-risk trial, let us know!',
+    },
+    dispatchedAt: new Date(Date.now() - 1800000).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+  },
+];
+
+// Helper: Synthesize Lead Dossier & Grand Slam Offer
+function scoreAndGenerateLead(input: {
+  name: string;
+  organization: string;
+  phone: string;
+  email?: string;
+  channel?: 'linkedin' | 'twitter' | 'whatsapp' | 'outbound';
+  triggerSignal?: string;
+  targetSaas?: string;
+}): InboundLead {
+  const signal = (input.triggerSignal || '').toLowerCase();
+  const saas = input.targetSaas || 'MediSuite AI';
+
+  let score = 75;
+  let tier: 'Tier 1 (High Urgency)' | 'Tier 2 (Nurture)' | 'Tier 3 (Passive)' = 'Tier 2 (Nurture)';
+  let urgency = '< 2 Hour SLA — Qualified Inbound';
+
+  if (
+    signal.includes('clinic') ||
+    signal.includes('invoice') ||
+    signal.includes('demo') ||
+    signal.includes('urgent') ||
+    signal.includes('price') ||
+    signal.includes('cost') ||
+    signal.includes('buy')
+  ) {
+    score = 92 + Math.floor(Math.random() * 6);
+    tier = 'Tier 1 (High Urgency)';
+    urgency = '< 5 Min Immediate SLA — Active Intent Signal';
+  } else if (signal.includes('info') || signal.includes('more') || signal.includes('interested')) {
+    score = 80 + Math.floor(Math.random() * 8);
+    tier = 'Tier 2 (Nurture)';
+    urgency = '< 1 Hour SLA — Engaged Prospect';
+  } else {
+    score = 65 + Math.floor(Math.random() * 10);
+    tier = 'Tier 3 (Passive)';
+    urgency = '< 24 Hour SLA — Value-First Nurture';
+  }
+
+  const cleanPhone = input.phone.replace(/[^0-9]/g, '');
+
+  const isMedical = saas.toLowerCase().includes('medisuite') || saas.toLowerCase().includes('health') || saas.toLowerCase().includes('clinic');
+
+  const grandSlamOffer = isMedical
+    ? {
+        dreamOutcome: 'Eliminate 85% of clinic no-shows & recover 2.5 hours/day of doctor charting time',
+        timeDelay: 'Live in 15 minutes, zero staff training required',
+        effortSacrifice: 'Zero new hardware, runs directly on clinic WhatsApp and mobile phones',
+        guarantee: '14-Day Zero-Risk Trial — if no-shows do not drop by at least 50%, pay ₹0',
+        cta: 'Reply "CLINIC" or tap the link to test our live WhatsApp receptionist.',
+      }
+    : {
+        dreamOutcome: `Automate 90% of manual repetitive workflows in ${input.organization || 'your team'}`,
+        timeDelay: 'Up and running in 10 minutes with 1-click cloud sync',
+        effortSacrifice: 'No change to existing software stack or vendor habits',
+        guarantee: '100% Performance Guarantee or full month credited',
+        cta: `Reply "DEMO" to activate your private ${saas} sandbox environment.`,
+      };
+
+  const cadence = {
+    touch1_patternInterrupt: isMedical
+      ? `Dr./Mr. ${input.name}, saw your signal regarding clinic operations. Private clinics in India lose ~₹1.5L/month to missed patient appointments. We built MediSuite so doctors can dictate 30-second prescriptions and let AI automate WhatsApp bookings. Free for a quick 60-second voice demo?`
+      : `Hey ${input.name}, saw your note regarding ${input.triggerSignal || 'automating workflows'}. Teams like ${input.organization || 'yours'} lose 15+ hours weekly to manual admin. We built ${saas} to eliminate this bottleneck in under 10 minutes. Open to a 60-second screen record?`,
+    touch2_proofOfMechanism: isMedical
+      ? `${input.name}, the breakthrough mechanism is Ambient Voice Rx + Autonomous WhatsApp Scheduling. Prescriptions are spoken naturally in Hindi/English, and structured digital records are dispatched instantly.`
+      : `${input.name}, the secret is our deterministic AI worker engine that integrates directly into your existing channels without complex onboarding or API coding.`,
+    touch3_interactiveDemo: isMedical
+      ? `Dr. ${input.name}, test our live clinic AI receptionist right now: Message "HI" to our active WhatsApp bot +91 92780 09883 or tap https://wa.me/919278009883?text=Hi%20Demo — experience automated patient scheduling in 30 seconds.`
+      : `Hey ${input.name}, here is a sandbox pass to test ${saas} live without entering a credit card: https://${saas.toLowerCase().replace(/[^a-z0-9]/g, '')}.onyxiq.in/demo.`,
+    touch4_softBreakup:
+      `Hey ${input.name}, closing your file for this month as I know you're super busy. Whenever you're ready to fix this bottleneck and reclaim 10+ hours a week, our 14-day zero-risk trial is always ready.`,
+  };
+
+  return {
+    id: `lead-${Date.now()}`,
+    name: input.name,
+    organization: input.organization || 'Independent Practice',
+    phone: cleanPhone,
+    email: input.email || '',
+    channel: input.channel || 'linkedin',
+    triggerSignal: input.triggerSignal || 'Social Inbound Engagement',
+    targetSaas: saas,
+    status: 'DOSSIER_READY',
+    opportunityScore: score,
+    tier,
+    urgencyRouting: urgency,
+    grandSlamOffer,
+    cadence,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+// ─── Phase 3 API Routes ───────────────────────────────────────────────────────
+
+// 1. Fetch All Leads in Pipeline
+app.get('/api/leads', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    total: LEADS_STORE.length,
+    leads: LEADS_STORE,
+  });
+});
+
+// 2. Ingest New Inbound Comment / Lead
+app.post('/api/leads/capture', (req: Request, res: Response) => {
+  try {
+    const { name, organization, phone, email, channel, triggerSignal, targetSaas } = req.body;
+    if (!name || !phone) {
+      return res.status(400).json({ success: false, error: 'Name and Phone/WhatsApp are required.' });
+    }
+
+    const newLead = scoreAndGenerateLead({
+      name,
+      organization,
+      phone,
+      email,
+      channel,
+      triggerSignal,
+      targetSaas,
+    });
+
+    LEADS_STORE.unshift(newLead);
+
+    res.json({
+      success: true,
+      lead: newLead,
+      message: `Lead "${newLead.name}" ingested and classified as ${newLead.tier} (${newLead.opportunityScore}/100)!`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'Failed to ingest lead.' });
+  }
+});
+
+// 3. Dispatch WhatsApp Outreach Message via Baileys Bridge
+app.post('/api/leads/dispatch-whatsapp', async (req: Request, res: Response) => {
+  try {
+    const { leadId, customMessage } = req.body;
+    const lead = LEADS_STORE.find((l) => l.id === leadId);
+
+    if (!lead) {
+      return res.status(404).json({ success: false, error: 'Lead not found in pipeline.' });
+    }
+
+    const messageToSend = customMessage || lead.cadence.touch1_patternInterrupt;
+    const cleanPhone = lead.phone.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageToSend)}`;
+
+    let dispatchedViaBridge = false;
+    let bridgeResult: any = null;
+
+    // Attempt direct dispatch via local Baileys HTTP Send API on VM (127.0.0.1:3001)
+    try {
+      const response = await fetch('http://127.0.0.1:3001/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          text: messageToSend,
+        }),
+      });
+
+      if (response.ok) {
+        bridgeResult = await response.json();
+        dispatchedViaBridge = bridgeResult.success === true;
+      }
+    } catch (e: any) {
+      console.warn('[Baileys Dispatch Warning]', e.message);
+    }
+
+    lead.status = 'DISPATCHED';
+    lead.dispatchedAt = new Date().toISOString();
+
+    res.json({
+      success: true,
+      leadId: lead.id,
+      phone: cleanPhone,
+      dispatchedViaBridge,
+      bridgeResponse: bridgeResult,
+      waLink,
+      message: dispatchedViaBridge
+        ? `Outbound WhatsApp message dispatched directly via Baileys Bot (+919278009883) to +${cleanPhone}!`
+        : `Lead marked DISPATCHED! Direct WhatsApp link prepared for 1-tap send.`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'Dispatch failed.' });
+  }
+});
+
+// 4. Ecosystem Interconnection Telemetry
+app.get('/api/ecosystem/status', async (req: Request, res: Response) => {
+  const telemetry = {
+    timestamp: new Date().toISOString(),
+    nodes: {
+      marketing_hub: {
+        name: 'Onyx Marketing Command Center',
+        url: 'https://marketing.onyxiq.in',
+        port: PORT,
+        status: 'ONLINE',
+        uptime: process.uptime(),
+      },
+      llm_gateway: {
+        name: 'OnyxIQ Unified LLMs Gateway',
+        url: 'https://llm.onyxiq.in',
+        port: 3200,
+        status: 'UNKNOWN',
+        modelsCount: 472,
+      },
+      whatsapp_bridge: {
+        name: 'MediSuite Baileys WhatsApp Gateway',
+        port: 3001,
+        status: 'UNKNOWN',
+        botPhone: '+919278009883',
+        connected: false,
+      },
+      medisuite_core: {
+        name: 'MediSuite Clinical AI Operating System',
+        url: 'https://medisuite-agent.onyxiq.in',
+        port: 3000,
+        status: 'UNKNOWN',
+      },
+      neon_database: {
+        name: 'Neon Serverless Postgres',
+        table: 'prod_content',
+        status: NEON_DATABASE_URL ? 'CONFIGURED' : 'UNCONFIGURED',
+      },
+    },
+  };
+
+  // Probe WhatsApp Bridge
+  try {
+    const waRes = await fetch('http://127.0.0.1:3001/health', { signal: AbortSignal.timeout(2000) });
+    if (waRes.ok) {
+      const waData: any = await waRes.json();
+      telemetry.nodes.whatsapp_bridge.status = 'ONLINE';
+      telemetry.nodes.whatsapp_bridge.connected = waData.connected === true;
+      telemetry.nodes.whatsapp_bridge.botPhone = `+${waData.botPhone || '919278009883'}`;
+    } else {
+      telemetry.nodes.whatsapp_bridge.status = 'DEGRADED';
+    }
+  } catch {
+    telemetry.nodes.whatsapp_bridge.status = 'OFFLINE';
+  }
+
+  // Probe LLM Gateway
+  try {
+    const llmRes = await fetch('http://127.0.0.1:3200/health', { signal: AbortSignal.timeout(2000) });
+    if (llmRes.ok) {
+      const llmData: any = await llmRes.json();
+      telemetry.nodes.llm_gateway.status = 'ONLINE';
+      telemetry.nodes.llm_gateway.modelsCount = llmData.total_models || 472;
+    } else {
+      telemetry.nodes.llm_gateway.status = 'DEGRADED';
+    }
+  } catch {
+    telemetry.nodes.llm_gateway.status = 'OFFLINE';
+  }
+
+  // Probe MediSuite
+  try {
+    const medRes = await fetch('http://127.0.0.1:3000/', { signal: AbortSignal.timeout(2000) });
+    telemetry.nodes.medisuite_core.status = medRes.status < 500 ? 'ONLINE' : 'DEGRADED';
+  } catch {
+    telemetry.nodes.medisuite_core.status = 'OFFLINE';
+  }
+
+  res.json({
+    success: true,
+    ecosystem: telemetry,
+  });
+});
+
 // SPA Fallback Route
 app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(publicDir, 'index.html'));

@@ -85,6 +85,11 @@
           <span>Publishing Pipeline</span>
           <span id="queue-count-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-mono">0</span>
         </button>
+        <button onclick="switchTab('leads')" id="tab-btn-leads" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Lead Conversion Hub</span>
+          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Phase 3</span>
+        </button>
       </nav>
 
       <!-- System Health Indicator -->
@@ -96,10 +101,43 @@
           </div>
           <span class="text-[10px] text-gray-400 font-mono">Oracle VM • Port 4300</span>
         </div>
-        <button onclick="loadQueue(); loadRoster();" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 transition" title="Refresh Telemetry">
+        <button onclick="loadQueue(); loadRoster(); loadLeads(); loadEcosystemStatus();" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 transition" title="Refresh Telemetry">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
       </div>
+    </div>
+
+    <!-- Sovereign Ecosystem Mesh Telemetry Bar -->
+    <div class="border-t border-brand-border/40 bg-black/40 backdrop-blur px-6 py-2">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono">
+        <div class="flex items-center gap-2 text-gray-400">
+          <i data-lucide="network" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span class="font-semibold text-gray-300">SOVEREIGN ECOSYSTEM MESH:</span>
+        </div>
+        <div id="ecosystem-telemetry-pills" class="flex flex-wrap items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+            <span>Marketing Hub :4300</span>
+          </span>
+          <span id="node-llm" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span id="node-llm-label">OnyxIQ LLMs :3200 (472 models)</span>
+          </span>
+          <span id="node-wa" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span id="node-wa-label">WhatsApp Gateway (+919278009883)</span>
+          </span>
+          <span id="node-medisuite" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>MediSuite Core :3000</span>
+          </span>
+          <span id="node-neon" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>Neon DB (prod_content)</span>
+          </span>
+        </div>
+      </div>
+    </div>
     </div>
   </header>
 
@@ -428,7 +466,271 @@
       </div>
     </section>
 
+    <!-- ===================================================================== -->
+    <!-- TAB 5: LEAD CONVERSION & CLOSED-LOOP HUB (PHASE 3)                    -->
+    <!-- ===================================================================== -->
+    <section id="tab-leads" class="tab-pane hidden space-y-6">
+      <!-- Funnel Overview Banner -->
+      <div class="bg-gradient-to-r from-brand-card via-[#16192E] to-brand-card p-6 rounded-2xl border border-brand-border space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🎯</span> Closed-Loop Inbound → Outbound Growth Machine
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 font-mono border border-emerald-500/30 font-bold">Phase 3 Live</span>
+            </h2>
+            <p class="text-xs text-gray-400 mt-1">
+              Social inbound posts generate comment signals (e.g. <span class="font-mono text-amber-300 font-bold">'CLINIC'</span> or <span class="font-mono text-cyan-300 font-bold">'INVOICE'</span>). 
+              Our cognitive engine scores urgency, synthesizes Alex Hormozi Grand Slam Offers, and dispatches automated WhatsApp outreach to close subscriptions.
+            </p>
+          </div>
+          <button onclick="loadLeads()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Refresh Leads</span>
+          </button>
+        </div>
+
+        <!-- Funnel Flow Diagram -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 pt-2 border-t border-brand-border/40 text-center">
+          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+            <div class="text-[10px] text-gray-400 font-mono uppercase">1. Inbound Post</div>
+            <div class="text-xs font-bold text-indigo-300 mt-0.5">Viral Hook & CTA</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+            <div class="text-[10px] text-gray-400 font-mono uppercase">2. Signal Ingestion</div>
+            <div class="text-xs font-bold text-amber-300 mt-0.5">Comment 'KEYWORD'</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+            <div class="text-[10px] text-gray-400 font-mono uppercase">3. Agency Cognition</div>
+            <div class="text-xs font-bold text-emerald-300 mt-0.5">Score & Grand Slam</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+            <div class="text-[10px] text-gray-400 font-mono uppercase">4. WhatsApp Dispatch</div>
+            <div class="text-xs font-bold text-cyan-300 mt-0.5">Baileys Gateway</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5 col-span-2 md:col-span-1">
+            <div class="text-[10px] text-gray-400 font-mono uppercase">5. Conversion Close</div>
+            <div class="text-xs font-bold text-rose-300 mt-0.5">14-Day Trial Activation</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ingest New Lead Form -->
+      <div class="glass-card p-6 rounded-2xl border border-brand-border space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border/60 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📥</span>
+            <h3 class="text-sm font-bold text-white">Ingest Inbound Social Lead or Commenter</h3>
+          </div>
+          <!-- Quick Load Pre-set Leads -->
+          <div class="flex flex-wrap items-center gap-1.5 text-xs font-mono">
+            <span class="text-gray-500 text-[11px] mr-1">Quick Load:</span>
+            <button onclick="fillLeadDemo(1)" class="px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition text-[11px]">
+              Dr. Sharma ('CLINIC')
+            </button>
+            <button onclick="fillLeadDemo(2)" class="px-2 py-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition text-[11px]">
+              Vikram ('INVOICE')
+            </button>
+            <button onclick="fillLeadDemo(3)" class="px-2 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition text-[11px]">
+              Dr. Priya (WhatsApp)
+            </button>
+          </div>
+        </div>
+
+        <form id="lead-capture-form" onsubmit="captureLead(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Prospect / Doctor Name *</label>
+            <input type="text" id="lead-name" required placeholder="e.g. Dr. Rajesh Sharma" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Organization / Clinic Name *</label>
+            <input type="text" id="lead-org" required placeholder="e.g. Apex Health Clinic, Lucknow" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Phone / WhatsApp Number *</label>
+            <input type="text" id="lead-phone" required placeholder="e.g. 919876543210" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Inbound Channel</label>
+            <select id="lead-channel" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
+              <option value="linkedin">LinkedIn Comment</option>
+              <option value="twitter">Twitter / X Reply</option>
+              <option value="whatsapp">Direct WhatsApp Inbound</option>
+              <option value="outbound">Outbound Lead Scraping</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Target SaaS Solution</label>
+            <select id="lead-saas" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
+              <option value="MediSuite AI">MediSuite AI (Clinical Voice & EHR)</option>
+              <option value="FlowInvoice AI">FlowInvoice AI (FinTech Invoice OCR)</option>
+              <option value="TalentRadar AI">TalentRadar AI (Recruitment Scoring)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Trigger Signal / Comment Text *</label>
+            <input type="text" id="lead-signal" required placeholder="e.g. Commented 'CLINIC' on burnout post" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+          <div class="md:col-span-3 flex justify-end pt-1">
+            <button type="submit" id="btn-ingest-lead" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>🚀 Ingest & Run Full Cognitive Pipeline (Score + Grand Slam + Cadence)</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 4-Stage Kanban Pipeline Board -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>📊</span> Live Conversion Pipeline Board
+          </h3>
+          <span class="text-xs font-mono text-gray-400" id="leads-total-count">Total: 3 Leads</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Col 1: Captured -->
+          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-2">
+              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                <span>1. Inbound Captured</span>
+              </span>
+              <span id="col-count-captured" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300">0</span>
+            </div>
+            <div id="col-captured" class="space-y-2.5 min-h-[220px]"></div>
+          </div>
+
+          <!-- Col 2: Scored -->
+          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-2">
+              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>2. Signal Scored</span>
+              </span>
+              <span id="col-count-scored" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300">0</span>
+            </div>
+            <div id="col-scored" class="space-y-2.5 min-h-[220px]"></div>
+          </div>
+
+          <!-- Col 3: Dossier Ready -->
+          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-2">
+              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                <span>3. Grand Slam Ready</span>
+              </span>
+              <span id="col-count-dossier" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-purple-500/20 text-purple-300">0</span>
+            </div>
+            <div id="col-dossier" class="space-y-2.5 min-h-[220px]"></div>
+          </div>
+
+          <!-- Col 4: Dispatched -->
+          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border pb-2">
+              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>4. WhatsApp Dispatched</span>
+              </span>
+              <span id="col-count-dispatched" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300">0</span>
+            </div>
+            <div id="col-dispatched" class="space-y-2.5 min-h-[220px]"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- LEAD DOSSIER & WHATSAPP ACTION MODAL -->
+  <div id="lead-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-card max-w-3xl w-full rounded-2xl border border-brand-border p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-brand-border pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="lead-modal-name" class="font-bold text-white text-base">Dr. Rajesh Sharma</h3>
+            <span id="lead-modal-tier" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Tier 1</span>
+            <span id="lead-modal-score" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-bold">94/100</span>
+          </div>
+          <p id="lead-modal-org" class="text-xs text-gray-400 mt-0.5">Apex Multi-Specialty Clinic • MediSuite AI</p>
+        </div>
+        <button onclick="closeLeadModal()" class="p-1 rounded-lg text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Signal & SLA -->
+      <div class="p-3 bg-black/50 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
+        <div>
+          <span class="text-gray-400">Trigger Signal:</span>
+          <span id="lead-modal-signal" class="text-gray-200 font-semibold ml-1"></span>
+        </div>
+        <div>
+          <span id="lead-modal-sla" class="text-amber-300 font-bold"></span>
+        </div>
+      </div>
+
+      <!-- Grand Slam Offer -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-black/40 border border-indigo-500/30 space-y-2">
+        <span class="text-[10px] font-mono uppercase text-indigo-400 font-bold block">🎯 Alex Hormozi Value Equation Offer:</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div>
+            <span class="text-gray-400 block text-[10px]">Dream Outcome:</span>
+            <span id="lead-modal-dream" class="text-gray-200 font-semibold"></span>
+          </div>
+          <div>
+            <span class="text-gray-400 block text-[10px]">Time Delay Guarantee:</span>
+            <span id="lead-modal-delay" class="text-gray-200"></span>
+          </div>
+          <div>
+            <span class="text-gray-400 block text-[10px]">Effort & Sacrifice:</span>
+            <span id="lead-modal-effort" class="text-gray-200"></span>
+          </div>
+          <div>
+            <span class="text-gray-400 block text-[10px]">Risk-Reversal Guarantee:</span>
+            <span id="lead-modal-guarantee" class="text-emerald-400 font-semibold"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-Touch Cadence Selector & Viewer -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white">4-Step Multi-Touch Cadence:</span>
+          <div class="flex gap-1 text-[11px] font-mono">
+            <button onclick="switchCadenceTouch(1)" id="btn-touch-1" class="px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold">Touch 1 (Hook)</button>
+            <button onclick="switchCadenceTouch(2)" id="btn-touch-2" class="px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white">Touch 2 (Mechanism)</button>
+            <button onclick="switchCadenceTouch(3)" id="btn-touch-3" class="px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white">Touch 3 (Live Bot Demo)</button>
+            <button onclick="switchCadenceTouch(4)" id="btn-touch-4" class="px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white">Touch 4 (Soft Breakup)</button>
+          </div>
+        </div>
+        <textarea id="lead-modal-cadence-text" rows="4" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl p-3 text-xs text-gray-200 font-mono leading-relaxed focus:outline-none focus:border-indigo-500"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-brand-border">
+        <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
+          <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Target Phone:</span>
+          <span id="lead-modal-phone" class="text-white font-bold"></span>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="copyCadenceMessage()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy</span>
+          </button>
+          <a id="lead-modal-wa-link" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>Open WA Web</span>
+          </a>
+          <button onclick="dispatchLeadWhatsApp()" id="btn-dispatch-wa" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 transition">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Dispatch via Baileys Bot (+919278009883)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- AGENT PERSONA MODAL -->
   <div id="agent-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
@@ -486,6 +788,7 @@
 
       if (tabId === 'roster') loadRoster();
       if (tabId === 'queue') loadQueue();
+      if (tabId === 'leads') loadLeads();
     }
 
     // Load Roster
@@ -848,11 +1151,308 @@
       }
     }
 
+    // ═════════════════════════════════════════════════════════════════════════
+    // PHASE 3: LEAD CONVERSION, KANBAN & WHATSAPP DISPATCH LOGIC
+    // ═════════════════════════════════════════════════════════════════════════
+    let currentLeads = [];
+    let selectedLead = null;
+    let activeTouch = 1;
+
+    // Load Ecosystem Health & Connectivity
+    async function loadEcosystemStatus() {
+      try {
+        const res = await fetch('/api/ecosystem/status');
+        const data = await res.json();
+        if (data.success && data.ecosystem && data.ecosystem.nodes) {
+          const nodes = data.ecosystem.nodes;
+          
+          const llmNode = document.getElementById('node-llm');
+          if (llmNode) {
+            llmNode.className = `px-2.5 py-0.5 rounded-full border text-xs flex items-center gap-1.5 ${nodes.llm_gateway.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border-rose-500/30 text-rose-300'}`;
+            document.getElementById('node-llm-label').innerText = `OnyxIQ LLMs :3200 (${nodes.llm_gateway.modelsCount || 472} models)`;
+          }
+
+          const waNode = document.getElementById('node-wa');
+          if (waNode) {
+            waNode.className = `px-2.5 py-0.5 rounded-full border text-xs flex items-center gap-1.5 ${nodes.whatsapp_bridge.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'}`;
+            document.getElementById('node-wa-label').innerText = `WhatsApp Gateway (${nodes.whatsapp_bridge.botPhone || '+919278009883'})`;
+          }
+
+          const medNode = document.getElementById('node-medisuite');
+          if (medNode) {
+            medNode.className = `px-2.5 py-0.5 rounded-full border text-xs flex items-center gap-1.5 ${nodes.medisuite_core.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-gray-500/10 border-gray-500/30 text-gray-400'}`;
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load ecosystem status:', err);
+      }
+    }
+
+    // Load Leads & Render Kanban Board
+    async function loadLeads() {
+      try {
+        const res = await fetch('/api/leads');
+        const data = await res.json();
+        if (data.success && data.leads) {
+          currentLeads = data.leads;
+          renderKanban(currentLeads);
+        }
+      } catch (err) {
+        console.error('Failed to load leads:', err);
+      }
+    }
+
+    function renderKanban(leads) {
+      document.getElementById('leads-total-count').innerText = `Total: ${leads.length} Leads`;
+
+      const cols = {
+        CAPTURED: document.getElementById('col-captured'),
+        SCORED: document.getElementById('col-scored'),
+        DOSSIER_READY: document.getElementById('col-dossier'),
+        DISPATCHED: document.getElementById('col-dispatched'),
+      };
+
+      const counts = { CAPTURED: 0, SCORED: 0, DOSSIER_READY: 0, DISPATCHED: 0 };
+
+      // Clear columns
+      Object.values(cols).forEach(col => { if (col) col.innerHTML = ''; });
+
+      leads.forEach(lead => {
+        const status = lead.status === 'CONVERTED' ? 'DISPATCHED' : lead.status;
+        if (counts[status] !== undefined) counts[status]++;
+
+        const targetCol = cols[status];
+        if (!targetCol) return;
+
+        const card = document.createElement('div');
+        card.className = 'p-3.5 rounded-xl bg-black/60 border border-brand-border/80 hover:border-indigo-500/50 transition space-y-2 cursor-pointer';
+        card.onclick = () => openLeadModal(lead.id);
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-white">${lead.name}</span>
+            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded ${lead.tier.includes('Tier 1') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30'}">${lead.tier.split(' ')[0]} ${lead.tier.split(' ')[1]}</span>
+          </div>
+          <div class="text-[11px] text-gray-300 font-medium truncate">${lead.organization}</div>
+          <div class="p-2 rounded-lg bg-white/5 border border-white/5 text-[10px] text-gray-300 font-mono line-clamp-2">
+            "${lead.triggerSignal}"
+          </div>
+          <div class="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] font-mono">
+            <span class="text-amber-400 font-bold">${lead.opportunityScore}/100 Score</span>
+            <span class="text-indigo-400">${lead.targetSaas}</span>
+          </div>
+        `;
+        targetCol.appendChild(card);
+      });
+
+      document.getElementById('col-count-captured').innerText = counts.CAPTURED;
+      document.getElementById('col-count-scored').innerText = counts.SCORED;
+      document.getElementById('col-count-dossier').innerText = counts.DOSSIER_READY;
+      document.getElementById('col-count-dispatched').innerText = counts.DISPATCHED;
+
+      // Empty states
+      Object.keys(cols).forEach(k => {
+        if (counts[k] === 0 && cols[k]) {
+          cols[k].innerHTML = `<div class="p-6 text-center text-[10px] text-gray-600 font-mono">No leads in this stage</div>`;
+        }
+      });
+
+      lucide.createIcons();
+    }
+
+    // Pre-set Lead Fillers
+    function fillLeadDemo(preset) {
+      if (preset === 1) {
+        document.getElementById('lead-name').value = 'Dr. Rajesh Sharma';
+        document.getElementById('lead-org').value = 'Apex Multi-Specialty Clinic, Lucknow';
+        document.getElementById('lead-phone').value = '919876543210';
+        document.getElementById('lead-channel').value = 'linkedin';
+        document.getElementById('lead-saas').value = 'MediSuite AI';
+        document.getElementById('lead-signal').value = "Commented 'CLINIC' on LinkedIn Post regarding EHR burnout";
+      } else if (preset === 2) {
+        document.getElementById('lead-name').value = 'Vikram Malhotra';
+        document.getElementById('lead-org').value = 'Nexus Freight & Logistics, Mumbai';
+        document.getElementById('lead-phone').value = '919820012345';
+        document.getElementById('lead-channel').value = 'twitter';
+        document.getElementById('lead-saas').value = 'FlowInvoice AI';
+        document.getElementById('lead-signal').value = "Replied 'INVOICE' to Twitter Thread on vendor ledger mismatches";
+      } else if (preset === 3) {
+        document.getElementById('lead-name').value = 'Dr. Priya Nair';
+        document.getElementById('lead-org').value = 'City Dental Studio, Bangalore';
+        document.getElementById('lead-phone').value = '919845098765';
+        document.getElementById('lead-channel').value = 'whatsapp';
+        document.getElementById('lead-saas').value = 'MediSuite AI';
+        document.getElementById('lead-signal').value = "Incoming WhatsApp DM asking if bot can handle appointment reminders";
+      }
+    }
+
+    // Ingest Lead Form Submission
+    async function captureLead(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-ingest-lead');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Running Agency-Agents Cognition...`;
+      btn.disabled = true;
+      lucide.createIcons();
+
+      try {
+        const payload = {
+          name: document.getElementById('lead-name').value,
+          organization: document.getElementById('lead-org').value,
+          phone: document.getElementById('lead-phone').value,
+          channel: document.getElementById('lead-channel').value,
+          targetSaas: document.getElementById('lead-saas').value,
+          triggerSignal: document.getElementById('lead-signal').value,
+        };
+
+        const res = await fetch('/api/leads/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success && data.lead) {
+          currentLeads.unshift(data.lead);
+          renderKanban(currentLeads);
+          openLeadModal(data.lead.id);
+          document.getElementById('lead-capture-form').reset();
+        } else {
+          alert('Ingestion error: ' + (data.error || 'Failed to ingest lead'));
+        }
+      } catch (err) {
+        alert('Failed to ingest lead: ' + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    // Modal Operations
+    function openLeadModal(leadId) {
+      const lead = currentLeads.find(l => l.id === leadId);
+      if (!lead) return;
+      selectedLead = lead;
+      activeTouch = 1;
+
+      document.getElementById('lead-modal-name').innerText = lead.name;
+      document.getElementById('lead-modal-org').innerText = `${lead.organization} • ${lead.targetSaas} (${lead.channel.toUpperCase()})`;
+      document.getElementById('lead-modal-tier').innerText = lead.tier;
+      document.getElementById('lead-modal-score').innerText = `${lead.opportunityScore}/100`;
+      document.getElementById('lead-modal-signal').innerText = `"${lead.triggerSignal}"`;
+      document.getElementById('lead-modal-sla').innerText = lead.urgencyRouting;
+
+      // Grand Slam Offer
+      document.getElementById('lead-modal-dream').innerText = lead.grandSlamOffer.dreamOutcome;
+      document.getElementById('lead-modal-delay').innerText = lead.grandSlamOffer.timeDelay;
+      document.getElementById('lead-modal-effort').innerText = lead.grandSlamOffer.effortSacrifice;
+      document.getElementById('lead-modal-guarantee').innerText = lead.grandSlamOffer.guarantee;
+
+      // Cadence Text
+      switchCadenceTouch(1);
+
+      // Phone & Link
+      document.getElementById('lead-modal-phone').innerText = `+${lead.phone}`;
+      updateWaLink();
+
+      document.getElementById('lead-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeLeadModal() {
+      document.getElementById('lead-modal').classList.add('hidden');
+      selectedLead = null;
+    }
+
+    function switchCadenceTouch(touchNum) {
+      if (!selectedLead) return;
+      activeTouch = touchNum;
+
+      [1, 2, 3, 4].forEach(n => {
+        const btn = document.getElementById(`btn-touch-${n}`);
+        if (btn) {
+          if (n === touchNum) {
+            btn.className = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white';
+          }
+        }
+      });
+
+      const field = document.getElementById('lead-modal-cadence-text');
+      if (touchNum === 1) field.value = selectedLead.cadence.touch1_patternInterrupt;
+      if (touchNum === 2) field.value = selectedLead.cadence.touch2_proofOfMechanism;
+      if (touchNum === 3) field.value = selectedLead.cadence.touch3_interactiveDemo;
+      if (touchNum === 4) field.value = selectedLead.cadence.touch4_softBreakup;
+
+      updateWaLink();
+    }
+
+    function updateWaLink() {
+      if (!selectedLead) return;
+      const text = document.getElementById('lead-modal-cadence-text').value;
+      const cleanPhone = selectedLead.phone.replace(/[^0-9]/g, '');
+      const link = document.getElementById('lead-modal-wa-link');
+      if (link) {
+        link.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+      }
+    }
+
+    function copyCadenceMessage() {
+      const text = document.getElementById('lead-modal-cadence-text').value;
+      navigator.clipboard.writeText(text);
+      alert('Outreach cadence message copied to clipboard!');
+    }
+
+    // Dispatch WhatsApp Outreach Message via Baileys Bridge
+    async function dispatchLeadWhatsApp() {
+      if (!selectedLead) return;
+      const btn = document.getElementById('btn-dispatch-wa');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Dispatching via Baileys...`;
+      btn.disabled = true;
+      lucide.createIcons();
+
+      const textToSend = document.getElementById('lead-modal-cadence-text').value;
+
+      try {
+        const res = await fetch('/api/leads/dispatch-whatsapp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            leadId: selectedLead.id,
+            customMessage: textToSend
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          selectedLead.status = 'DISPATCHED';
+          renderKanban(currentLeads);
+          alert(data.message || 'WhatsApp message dispatched successfully!');
+        } else {
+          alert('Dispatch failed: ' + (data.error || 'Check Baileys bridge status'));
+        }
+      } catch (err) {
+        alert('Dispatch error: ' + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
     // Initial boot
     document.addEventListener('DOMContentLoaded', () => {
       loadRoster();
+      loadEcosystemStatus();
+      loadLeads();
       lucide.createIcons();
     });
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
