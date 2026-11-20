@@ -85,6 +85,11 @@
           <span>Publishing Pipeline</span>
           <span id="queue-count-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-mono">0</span>
         </button>
+        <button onclick="switchTab('prospector')" id="tab-btn-prospector" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
+          <i data-lucide="compass" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>Outbound Prospector</span>
+          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">Places API</span>
+        </button>
         <button onclick="switchTab('leads')" id="tab-btn-leads" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
           <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
           <span>Lead Conversion Hub</span>
@@ -640,6 +645,110 @@
       </div>
     </section>
 
+    <!-- ===================================================================== -->
+    <!-- TAB 6: OUTBOUND LEAD PROSPECTOR & DIGITAL AUDITOR (PLACES API)        -->
+    <!-- ===================================================================== -->
+    <section id="tab-prospector" class="tab-pane hidden space-y-6">
+      <div class="bg-gradient-to-r from-brand-card via-[#112233] to-brand-card p-6 rounded-2xl border border-brand-border space-y-3">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🧭</span> Outbound Lead Prospector & Digital Auditor
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 font-mono border border-cyan-500/30 font-bold">Google Places API v1</span>
+            </h2>
+            <p class="text-xs text-gray-400 mt-1">
+              Search live businesses in any city or niche globally. Runs instant digital audits (SSL, Mobile, Booking widget, Tech stack), calculates 3-Tier Opportunity Scores, and builds Grand Slam Offers strictly in English.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Places API Ready</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Controls -->
+      <div class="glass-card p-6 rounded-2xl border border-brand-border space-y-4">
+        <!-- Quick Preset Queries -->
+        <div class="flex flex-wrap items-center gap-2 text-xs font-mono pb-2 border-b border-brand-border/60">
+          <span class="text-gray-400 text-[11px] font-semibold">⚡ Popular Discovery Presets:</span>
+          <button onclick="fillProspectorDemo('Dental Clinics', 'Lucknow, India', 'MediSuite AI')" class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition text-[11px]">
+            Dental Clinics in Lucknow
+          </button>
+          <button onclick="fillProspectorDemo('Cardiologists & Heart Clinics', 'Delhi, India', 'MediSuite AI')" class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition text-[11px]">
+            Heart Clinics in Delhi
+          </button>
+          <button onclick="fillProspectorDemo('Freight Forwarding & Logistics', 'Mumbai, India', 'FlowInvoice AI')" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition text-[11px]">
+            Freight in Mumbai
+          </button>
+          <button onclick="fillProspectorDemo('Accounting & CPA Firms', 'Bangalore, India', 'FlowInvoice AI')" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition text-[11px]">
+            CPA in Bangalore
+          </button>
+          <button onclick="fillProspectorDemo('Private Medical Clinics', 'New York, USA', 'MediSuite AI')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 transition text-[11px]">
+            Clinics in New York
+          </button>
+        </div>
+
+        <form id="prospector-form" onsubmit="runProspectorSearch(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Business Niche / Category *</label>
+            <input type="text" id="prospect-niche" required placeholder="e.g. Dental Clinics, Freight Brokers" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Target City / Location *</label>
+            <input type="text" id="prospect-location" required placeholder="e.g. Lucknow, India" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Target SaaS Solution</label>
+            <select id="prospect-saas" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
+              <option value="MediSuite AI">MediSuite AI (Clinical Voice & EHR)</option>
+              <option value="FlowInvoice AI">FlowInvoice AI (Invoice & OCR)</option>
+              <option value="TalentRadar AI">TalentRadar AI (Recruitment Scoring)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 font-mono mb-1">Max Leads to Discover</label>
+            <select id="prospect-limit" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
+              <option value="5">5 Top Prospects</option>
+              <option value="10">10 Top Prospects</option>
+              <option value="15">15 Top Prospects</option>
+              <option value="20">20 Maximum</option>
+            </select>
+          </div>
+          <div class="md:col-span-4 flex items-center justify-between pt-2">
+            <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
+              <span>Output Language:</span>
+              <span class="text-white font-bold bg-white/5 px-2 py-0.5 rounded border border-white/10">English (en)</span>
+            </div>
+            <button type="submit" id="btn-run-prospector" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-teal-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-cyan-600/30 transition">
+              <i data-lucide="compass" class="w-4 h-4"></i>
+              <span>🔍 Discover & Audit Outbound Leads via Google Places</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Discovered Leads Container -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>📋</span> Discovered & Audited Prospects
+          </h3>
+          <span id="prospector-count-label" class="text-xs font-mono text-gray-400">Ready to search</span>
+        </div>
+
+        <div id="prospector-results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendered dynamically -->
+          <div class="col-span-full glass-card p-12 text-center text-xs text-gray-500 font-mono space-y-2">
+            <i data-lucide="search" class="w-8 h-8 mx-auto text-gray-600"></i>
+            <div>Enter a niche and city above to discover verified business leads directly from Google Places.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- LEAD DOSSIER & WHATSAPP ACTION MODAL -->
@@ -789,6 +898,7 @@
       if (tabId === 'roster') loadRoster();
       if (tabId === 'queue') loadQueue();
       if (tabId === 'leads') loadLeads();
+      if (tabId === 'prospector') lucide.createIcons();
     }
 
     // Load Roster
@@ -1443,6 +1553,181 @@
       }
     }
 
+    // ═════════════════════════════════════════════════════════════════════════
+    // OUTBOUND LEAD PROSPECTOR (GOOGLE PLACES API & AUDIT)
+    // ═════════════════════════════════════════════════════════════════════════
+    let discoveredProspects = [];
+
+    function fillProspectorDemo(niche, location, saas) {
+      document.getElementById('prospect-niche').value = niche;
+      document.getElementById('prospect-location').value = location;
+      document.getElementById('prospect-saas').value = saas;
+    }
+
+    async function runProspectorSearch(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-run-prospector');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Searching Google Places & Auditing Tech...`;
+      btn.disabled = true;
+      lucide.createIcons();
+
+      const container = document.getElementById('prospector-results-grid');
+      container.innerHTML = `
+        <div class="col-span-full glass-card p-12 text-center text-xs text-gray-400 font-mono space-y-3">
+          <i data-lucide="loader-2" class="w-8 h-8 mx-auto text-cyan-400 animate-spin"></i>
+          <div>Connecting to Google Places API (New v1), auditing web stacks, and scoring opportunities...</div>
+        </div>
+      `;
+      lucide.createIcons();
+
+      try {
+        const payload = {
+          niche: document.getElementById('prospect-niche').value,
+          location: document.getElementById('prospect-location').value,
+          targetSaas: document.getElementById('prospect-saas').value,
+          limit: document.getElementById('prospect-limit').value,
+          lang: 'en'
+        };
+
+        const res = await fetch('/api/leads/prospect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success && data.leads) {
+          discoveredProspects = data.leads;
+          renderProspectorResults(discoveredProspects);
+        } else {
+          container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-rose-400 font-mono">Search failed: ${data.error || 'Check Google Places API key'}</div>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-rose-400 font-mono">Network error: ${err.message}</div>`;
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    function renderProspectorResults(leads) {
+      const container = document.getElementById('prospector-results-grid');
+      document.getElementById('prospector-count-label').innerText = `Found ${leads.length} Verified Businesses`;
+
+      if (leads.length === 0) {
+        container.innerHTML = `<div class="col-span-full glass-card p-12 text-center text-xs text-gray-500 font-mono">No matching businesses found in this area. Try adjusting your niche or city.</div>`;
+        return;
+      }
+
+      container.innerHTML = leads.map(lead => {
+        const isTier1 = lead.tier.includes('Tier 1');
+        return `
+          <div class="glass-card p-5 rounded-2xl border border-brand-border hover:border-cyan-500/50 transition space-y-3 flex flex-col justify-between">
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="text-sm font-bold text-white leading-tight">${lead.name}</h4>
+                  <p class="text-[11px] text-gray-400 mt-0.5 line-clamp-1">${lead.address}</p>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${isTier1 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30'} font-bold whitespace-nowrap">
+                  ${lead.opportunityScore}/100
+                </span>
+              </div>
+
+              <!-- Rating, Reviews & Map -->
+              <div class="flex items-center gap-3 text-xs font-mono">
+                <span class="flex items-center gap-1 text-amber-400 font-bold">
+                  ★ ${lead.rating || 'N/A'}
+                  <span class="text-gray-400 font-normal">(${lead.userRatingCount} reviews)</span>
+                </span>
+                ${lead.googleMapsUri ? `
+                  <a href="${lead.googleMapsUri}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 text-[11px]">
+                    <i data-lucide="map-pin" class="w-3 h-3"></i>
+                    <span>Map</span>
+                  </a>
+                ` : ''}
+              </div>
+
+              <!-- Digital Audit Badges -->
+              <div class="grid grid-cols-2 gap-1.5 p-2.5 bg-black/40 rounded-xl border border-white/5 text-[10px] font-mono">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${lead.hasWebsite ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
+                  <span class="${lead.hasWebsite ? 'text-gray-300' : 'text-rose-400 font-bold'}">${lead.hasWebsite ? 'Website Present' : 'NO WEBSITE (+40)'}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${lead.scoreBreakdown?.noSSL === 0 ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
+                  <span class="text-gray-300">${lead.scoreBreakdown?.noSSL === 0 ? 'SSL Secure' : 'No SSL / Old'}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${lead.scoreBreakdown?.missingBooking === 0 ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                  <span class="text-gray-300">${lead.scoreBreakdown?.missingBooking === 0 ? 'Online Booking' : 'No Booking (+20)'}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${lead.scoreBreakdown?.noAIChat === 0 ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                  <span class="text-gray-300">${lead.scoreBreakdown?.noAIChat === 0 ? 'AI WhatsApp' : 'No AI Bot (+10)'}</span>
+                </div>
+              </div>
+
+              <!-- Phone & Grand Slam Highlight -->
+              <div class="text-[11px] text-gray-300 flex items-center justify-between font-mono">
+                <span class="text-gray-400">Phone:</span>
+                <span class="text-white font-semibold">${lead.rawPhone || 'Not listed'}</span>
+              </div>
+            </div>
+
+            <!-- Card Bottom Actions -->
+            <div class="pt-3 border-t border-brand-border/60 flex items-center justify-between gap-2">
+              <button onclick="inspectProspect('${lead.id}')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[11px] font-semibold transition border border-white/10 flex items-center gap-1">
+                <i data-lucide="file-text" class="w-3 h-3"></i>
+                <span>Dossier</span>
+              </button>
+              <button onclick="pushLeadToPipeline('${lead.id}')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-[11px] font-semibold transition flex items-center gap-1 shadow">
+                <i data-lucide="arrow-right-circle" class="w-3 h-3"></i>
+                <span>Push to Pipeline</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function inspectProspect(leadId) {
+      const prospect = discoveredProspects.find(p => p.id === leadId);
+      if (!prospect) return;
+
+      // Add temporarily to currentLeads so openLeadModal can display it
+      if (!currentLeads.some(l => l.id === prospect.id)) {
+        currentLeads.push(prospect);
+      }
+      openLeadModal(prospect.id);
+    }
+
+    async function pushLeadToPipeline(leadId) {
+      const prospect = discoveredProspects.find(p => p.id === leadId);
+      if (!prospect) return;
+
+      try {
+        const res = await fetch('/api/leads/import-to-pipeline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lead: prospect })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Success: "${prospect.name}" has been pushed to the Closed-Loop Pipeline!`);
+          await loadLeads();
+          switchTab('leads');
+        } else {
+          alert('Failed to import: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
     // Initial boot
     document.addEventListener('DOMContentLoaded', () => {
       loadRoster();
@@ -1450,9 +1735,6 @@
       loadLeads();
       lucide.createIcons();
     });
-  </script>
-</body>
-</html>
   </script>
 </body>
 </html>

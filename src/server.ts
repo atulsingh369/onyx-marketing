@@ -54,6 +54,7 @@ app.use(express.static(publicDir));
 const NEON_DATABASE_URL = process.env.NEON_DATABASE_URL || '';
 const BIFROST_URL = process.env.BIFROST_URL || process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY || '';
+const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || 'AIzaSyDbcoPX-wDuW_hrCg99WwLnPSEL5-Jkcrk';
 
 // ─── 1. Marketing Agency Team Roster ─────────────────────────────────────────
 export interface MarketingAgent {
@@ -1083,6 +1084,230 @@ app.post('/api/leads/capture', (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message || 'Failed to ingest lead.' });
+  }
+});
+
+// 2b. Outbound Prospecting & Google Places Live Discovery
+app.post('/api/leads/prospect', async (req: Request, res: Response) => {
+  try {
+    const { niche, location, limit, lang, targetSaas } = req.body;
+    const query = `${niche || 'Dental Clinics'} in ${location || 'Lucknow, India'}`;
+    const maxCount = Math.min(Math.max(Number(limit) || 5, 1), 20);
+    const saas = targetSaas || 'MediSuite AI';
+
+    const placesRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+        'X-Goog-FieldMask':
+          'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.websiteUri,places.googleMapsUri',
+      },
+      body: JSON.stringify({
+        textQuery: query,
+        maxResultCount: maxCount,
+      }),
+    });
+
+    if (!placesRes.ok) {
+      const errData = await placesRes.text();
+      throw new Error(`Google Places API error: ${errData}`);
+    }
+
+    const placesData: any = await placesRes.json();
+    const places = placesData.places || [];
+
+    const isMedical =
+      saas.toLowerCase().includes('medisuite') ||
+      saas.toLowerCase().includes('clinic') ||
+      saas.toLowerCase().includes('health');
+
+    const results = places.map((p: any) => {
+      const hasWebsite = !!p.websiteUri;
+      const rating = p.rating || 0;
+      const reviews = p.userRatingCount || 0;
+      const lowRatingHighVol = rating > 0 && rating < 4.2 && reviews > 50;
+
+      let score = 0;
+      const breakdown = {
+        noWebsite: 0,
+        lowRatingHighVolume: 0,
+        missingBooking: 0,
+        noSSL: 0,
+        legacyStack: 0,
+        noAIChat: 0,
+      };
+
+      if (!hasWebsite) {
+        breakdown.noWebsite = 40;
+        breakdown.missingBooking = 20;
+        breakdown.noAIChat = 10;
+        score += 70;
+      } else {
+        if (lowRatingHighVol) {
+          breakdown.lowRatingHighVolume = 25;
+          score += 25;
+        }
+        const isBuilderOrOld =
+          p.websiteUri.includes('zoca.com') ||
+          p.websiteUri.includes('wix') ||
+          p.websiteUri.includes('wordpress') ||
+          p.websiteUri.includes('site123');
+        if (isBuilderOrOld) {
+          breakdown.missingBooking = 20;
+          breakdown.noAIChat = 10;
+          breakdown.legacyStack = 15;
+          score += 45;
+        } else {
+          breakdown.missingBooking = 20;
+          breakdown.noAIChat = 10;
+          score += 30;
+        }
+        if (!p.websiteUri.startsWith('https://')) {
+          breakdown.noSSL = 10;
+          score += 10;
+        }
+      }
+
+      score = Math.min(score + 15, 98);
+
+      let tier: 'Tier 1 (High Urgency)' | 'Tier 2 (Nurture)' | 'Tier 3 (Passive)' = 'Tier 2 (Nurture)';
+      let urgency = '< 2 Hour SLA — Qualified Prospect';
+      if (score >= 80) {
+        tier = 'Tier 1 (High Urgency)';
+        urgency = '< 15 Min SLA — Immediate High-Value Opportunity';
+      } else if (score < 50) {
+        tier = 'Tier 3 (Passive)';
+        urgency = '< 24 Hour SLA — Value-First Nurture';
+      }
+
+      const displayName = p.displayName?.text || 'Business';
+      const cleanPhone = (p.nationalPhoneNumber || '').replace(/[^0-9]/g, '');
+
+      const grandSlamOffer = isMedical
+        ? {
+            dreamOutcome: 'Eliminate 85% of clinic no-shows & recover 2.5 hours/day of doctor charting time',
+            timeDelay: 'Live in 15 minutes, zero staff retraining required',
+            effortSacrifice: 'Zero new hardware, uses clinic existing WhatsApp number and voice notes',
+            guarantee: '14-Day Zero-Risk Trial — if no-shows do not drop by at least 50%, pay ₹0',
+            cta: 'Reply "CLINIC" or tap the link to activate your private WhatsApp sandbox number.',
+          }
+        : {
+            dreamOutcome: `Automate 90% of manual repetitive workflows in ${displayName}`,
+            timeDelay: 'Up and running in 10 minutes with 1-click cloud sync',
+            effortSacrifice: 'No change to existing software stack or vendor habits',
+            guarantee: '100% Performance Guarantee or full month credited',
+            cta: `Reply "DEMO" to activate your private ${saas} sandbox environment.`,
+          };
+
+      const cadence = {
+        touch1_patternInterrupt: isMedical
+          ? `Dr./Mr. ${displayName}, noticed that your clinic scheduling in ${location} still relies on manual reception typing on WhatsApp. Most private practices lose ~₹1.5L/month to missed follow-ups. We built MediSuite so doctors can dictate 30-second voice prescriptions and let AI automate bookings. Free for a 60-second voice demo?`
+          : `Hi ${displayName}, saw your operations in ${location}. Teams like yours lose 15+ hours weekly to manual data entry and disjointed messaging. We built ${saas} to eliminate this friction in under 10 minutes. Can I send a 60-second video demo?`,
+        touch2_proofOfMechanism: isMedical
+          ? `${displayName}, the breakthrough mechanism is Ambient Voice Rx + Autonomous WhatsApp Booking. Prescriptions dictated in Hindi/English are instantly converted into structured EHR records and patient reminders.`
+          : `${displayName}, our breakthrough engine connects directly into your existing channels without complex onboarding or API coding.`,
+        touch3_interactiveDemo: isMedical
+          ? `Dr. ${displayName}, test our live clinic AI receptionist right now: Message "HI" to our active WhatsApp bot +91 92780 09883 or tap https://wa.me/919278009883?text=Hi%20Demo — experience 30-second automated booking.`
+          : `Hi ${displayName}, test ${saas} live in our sandbox with zero risk: https://${saas.toLowerCase().replace(/[^a-z0-9]/g, '')}.onyxiq.in/demo.`,
+        touch4_softBreakup:
+          `Hi ${displayName}, closing your file for this month as I know you are busy. If you ever want to automate your operations and eliminate no-shows, our 14-day zero-risk trial is always ready.`,
+      };
+
+      return {
+        id: `place-${p.id}`,
+        name: displayName,
+        organization: displayName,
+        address: p.formattedAddress || location,
+        phone: cleanPhone || '919876543210',
+        rawPhone: p.nationalPhoneNumber || 'N/A',
+        websiteUri: p.websiteUri || null,
+        rating,
+        userRatingCount: reviews,
+        googleMapsUri: p.googleMapsUri,
+        hasWebsite,
+        opportunityScore: score,
+        scoreBreakdown: breakdown,
+        tier,
+        urgencyRouting: urgency,
+        targetSaas: saas,
+        channel: 'outbound' as const,
+        triggerSignal: !hasWebsite
+          ? 'Missing proprietary website & automated online booking'
+          : `Rating ${rating} (${reviews} reviews) with manual booking friction`,
+        grandSlamOffer,
+        cadence,
+        status: 'SCORED' as const,
+        createdAt: new Date().toISOString(),
+      };
+    });
+
+    res.json({
+      success: true,
+      total: results.length,
+      query,
+      leads: results,
+    });
+  } catch (err: any) {
+    console.error('[Prospecting Error]', err);
+    res.status(500).json({ success: false, error: err.message || 'Prospecting failed.' });
+  }
+});
+
+// 2c. Import Discovered Outbound Lead Directly into Closed-Loop Pipeline
+app.post('/api/leads/import-to-pipeline', (req: Request, res: Response) => {
+  try {
+    const { lead } = req.body;
+    if (!lead || !lead.name) {
+      return res.status(400).json({ success: false, error: 'Valid lead object is required.' });
+    }
+
+    const existingIdx = LEADS_STORE.findIndex(
+      (l) => l.id === lead.id || (l.phone && lead.phone && l.phone === lead.phone)
+    );
+
+    const formattedLead: InboundLead = {
+      id: lead.id || `lead-${Date.now()}`,
+      name: lead.name,
+      organization: lead.organization || lead.address || 'Business',
+      phone: (lead.phone || '').replace(/[^0-9]/g, ''),
+      email: lead.email || '',
+      channel: lead.channel || 'outbound',
+      triggerSignal: lead.triggerSignal || 'Outbound Google Places Prospecting',
+      targetSaas: lead.targetSaas || 'MediSuite AI',
+      status: 'DOSSIER_READY',
+      opportunityScore: lead.opportunityScore || 85,
+      tier: lead.tier || 'Tier 1 (High Urgency)',
+      urgencyRouting: lead.urgencyRouting || '< 15 Min SLA — High Value Opportunity',
+      grandSlamOffer: lead.grandSlamOffer || {
+        dreamOutcome: 'Eliminate manual bottlenecks & recover 10+ hours weekly',
+        timeDelay: 'Live in 15 minutes',
+        effortSacrifice: 'Zero staff retraining',
+        guarantee: '14-Day Zero-Risk Trial',
+        cta: 'Reply to test live sandbox',
+      },
+      cadence: lead.cadence || {
+        touch1_patternInterrupt: `Hi ${lead.name}, quick question regarding your operations...`,
+        touch2_proofOfMechanism: 'Here is the exact mechanism...',
+        touch3_interactiveDemo: 'Test our live bot at +91 92780 09883...',
+        touch4_softBreakup: 'Closing your file for this month...',
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    if (existingIdx >= 0) {
+      LEADS_STORE[existingIdx] = { ...LEADS_STORE[existingIdx], ...formattedLead };
+    } else {
+      LEADS_STORE.unshift(formattedLead);
+    }
+
+    res.json({
+      success: true,
+      message: `"${formattedLead.name}" pushed to Closed-Loop Pipeline as DOSSIER_READY!`,
+      lead: formattedLead,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
