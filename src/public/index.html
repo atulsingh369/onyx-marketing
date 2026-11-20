@@ -1,1740 +1,1589 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OnyxIQ Marketing Command Center</title>
+  <title>OnyxIQ Marketing OS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
           colors: {
             brand: {
-              black: '#0A0A0A',
-              card: '#12121A',
-              border: '#232336',
-              indigo: '#6366F1',
-              emerald: '#10B981',
-              pink: '#EC4899',
-              amber: '#F59E0B',
-              blue: '#0A66C2',
-              cyan: '#06B6D4'
+              50: '#f0f4ff', 100: '#e0eaff', 200: '#c7d7fe',
+              500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+              surface: '#f8fafc', card: '#ffffff',
+              border: '#e2e8f0', muted: '#64748b'
             }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
           }
         }
       }
     }
   </script>
   <style>
-    body { background-color: #0A0A0A; color: #E2E8F0; font-family: 'Inter', sans-serif; }
-    .glass-card { background: rgba(18, 18, 26, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .glass-card-hover:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-2px); transition: all 0.2s ease; }
-    .glow-indigo { box-shadow: 0 0 24px -4px rgba(99, 102, 241, 0.35); }
-    .glow-emerald { box-shadow: 0 0 24px -4px rgba(16, 185, 129, 0.35); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0A0A0A; }
-    ::-webkit-scrollbar-thumb { background: #2A2A3E; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #6366F1; }
+    * { box-sizing: border-box; }
+    body { background: #f1f5f9; color: #0f172a; font-family: 'Inter', sans-serif; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 220px; min-width: 220px; background: #fff; border-right: 1px solid #e2e8f0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b; transition: all .15s; margin: 2px 8px; }
+    .nav-item:hover { background: #f1f5f9; color: #0f172a; }
+    .nav-item.active { background: #eef2ff; color: #4f46e5; font-weight: 600; }
+    .nav-item .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── Panels ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Cards ── */
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+    .card-hover:hover { border-color: #818cf8; box-shadow: 0 4px 16px rgba(99,102,241,.12); transition: all .2s; }
+
+    /* ── Badges ── */
+    .badge-green { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
+    .badge-blue { background:#dbeafe; color:#1d4ed8; border:1px solid #bfdbfe; }
+    .badge-purple { background:#ede9fe; color:#7c3aed; border:1px solid #ddd6fe; }
+    .badge-amber { background:#fef3c7; color:#b45309; border:1px solid #fde68a; }
+    .badge-rose { background:#ffe4e6; color:#be123c; border:1px solid #fecdd3; }
+    .badge-cyan { background:#cffafe; color:#0e7490; border:1px solid #a5f3fc; }
+    .badge-gray { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
+
+    /* ── Kanban ── */
+    .kanban-col { flex: 1; min-width: 0; }
+    .kanban-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 8px 12px; border-radius: 8px 8px 0 0; }
+    .kanban-body { min-height: 200px; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+    .kanban-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; cursor: pointer; transition: all .15s; }
+    .kanban-card:hover { border-color: #818cf8; box-shadow: 0 2px 10px rgba(99,102,241,.1); transform: translateY(-1px); }
+
+    /* ── Prospect card ── */
+    .prospect-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all .15s; }
+    .prospect-card:hover { border-color: #818cf8; box-shadow: 0 4px 16px rgba(99,102,241,.12); }
+
+    /* ── Score ring ── */
+    .score-ring { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: #fff; border-radius: 16px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+
+    /* ── Input / Select ── */
+    input, select, textarea { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #0f172a; outline: none; font-family: 'Inter', sans-serif; }
+    input:focus, select:focus, textarea:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,.2); }
+
+    /* ── Btn ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #e2e8f0; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-success:hover { background: #15803d; }
+    .btn-cyan { background: #0891b2; color: #fff; }
+    .btn-cyan:hover { background: #0e7490; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Progress bar ── */
+    .score-bar { height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 99px; }
+
+    /* ── Scroll ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* ── Status dot ── */
+    .dot-green { width:8px; height:8px; background:#22c55e; border-radius:50%; animation: pulse-g 2s infinite; }
+    .dot-amber { width:8px; height:8px; background:#f59e0b; border-radius:50%; }
+    .dot-red { width:8px; height:8px; background:#ef4444; border-radius:50%; }
+    @keyframes pulse-g { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,0)} }
+
+    /* ── Touch tab ── */
+    .touch-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; }
+    .touch-tab.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+
+    /* ── Roster agent card ── */
+    .agent-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; cursor: pointer; transition: all .15s; }
+    .agent-card:hover { border-color: #818cf8; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,.12); }
+    .agent-card.selected { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- TOP APP NAV -->
-  <header class="border-b border-brand-border bg-[#0E0E16]/90 backdrop-blur sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
-          ⚡
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-extrabold text-lg tracking-wider text-white">ONYXIQ</span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-mono">MARKETING CORE</span>
-          </div>
-          <p class="text-[11px] text-gray-400 font-mono">Autonomous Agency-Agents Orchestrator</p>
-        </div>
-      </div>
-
-      <!-- Central Nav Tabs -->
-      <nav class="flex space-x-1 bg-black/40 p-1 rounded-xl border border-brand-border/60">
-        <button onclick="switchTab('roster')" id="tab-btn-roster" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition bg-indigo-600 text-white shadow">
-          <i data-lucide="users" class="w-3.5 h-3.5"></i>
-          <span>Agency Roster</span>
-        </button>
-        <button onclick="switchTab('analyst')" id="tab-btn-analyst" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
-          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
-          <span>Universal SaaS Analyst</span>
-        </button>
-        <button onclick="switchTab('studio')" id="tab-btn-studio" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
-          <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i>
-          <span>Content Studio</span>
-        </button>
-        <button onclick="switchTab('queue')" id="tab-btn-queue" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
-          <i data-lucide="send" class="w-3.5 h-3.5"></i>
-          <span>Publishing Pipeline</span>
-          <span id="queue-count-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-mono">0</span>
-        </button>
-        <button onclick="switchTab('prospector')" id="tab-btn-prospector" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
-          <i data-lucide="compass" class="w-3.5 h-3.5 text-cyan-400"></i>
-          <span>Outbound Prospector</span>
-          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">Places API</span>
-        </button>
-        <button onclick="switchTab('leads')" id="tab-btn-leads" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-gray-400 hover:text-white flex items-center space-x-2 transition">
-          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span>Lead Conversion Hub</span>
-          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Phase 3</span>
-        </button>
-      </nav>
-
-      <!-- System Health Indicator -->
-      <div class="flex items-center space-x-3">
-        <div class="text-right hidden sm:block">
-          <div class="flex items-center space-x-1.5 justify-end">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-xs font-mono font-medium text-emerald-400">marketing.onyxiq.in</span>
-          </div>
-          <span class="text-[10px] text-gray-400 font-mono">Oracle VM • Port 4300</span>
-        </div>
-        <button onclick="loadQueue(); loadRoster(); loadLeads(); loadEcosystemStatus();" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 transition" title="Refresh Telemetry">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-        </button>
+  <!-- ══════════════════════════════════════════════════════════
+       TOP HEADER BAR
+  ══════════════════════════════════════════════════════════ -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 h-14 flex items-center px-5 gap-4">
+    <div class="flex items-center gap-2.5 flex-shrink-0">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">M</div>
+      <div>
+        <div class="font-bold text-sm text-slate-800 leading-none">OnyxIQ Marketing OS</div>
+        <div class="text-[10px] text-slate-400 font-mono">marketing.onyxiq.in</div>
       </div>
     </div>
 
-    <!-- Sovereign Ecosystem Mesh Telemetry Bar -->
-    <div class="border-t border-brand-border/40 bg-black/40 backdrop-blur px-6 py-2">
-      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono">
-        <div class="flex items-center gap-2 text-gray-400">
-          <i data-lucide="network" class="w-3.5 h-3.5 text-indigo-400"></i>
-          <span class="font-semibold text-gray-300">SOVEREIGN ECOSYSTEM MESH:</span>
-        </div>
-        <div id="ecosystem-telemetry-pills" class="flex flex-wrap items-center gap-2">
-          <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-            <span>Marketing Hub :4300</span>
-          </span>
-          <span id="node-llm" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span id="node-llm-label">OnyxIQ LLMs :3200 (472 models)</span>
-          </span>
-          <span id="node-wa" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span id="node-wa-label">WhatsApp Gateway (+919278009883)</span>
-          </span>
-          <span id="node-medisuite" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span>MediSuite Core :3000</span>
-          </span>
-          <span id="node-neon" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span>Neon DB (prod_content)</span>
-          </span>
-        </div>
-      </div>
+    <!-- Ecosystem status pills -->
+    <div id="eco-pills" class="flex items-center gap-2 ml-4 flex-1 overflow-x-auto">
+      <span class="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full badge-green whitespace-nowrap">
+        <span class="dot-green"></span>Marketing Hub :4300
+      </span>
+      <span id="pill-llm" class="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full badge-gray whitespace-nowrap">
+        <span class="dot-amber"></span><span id="pill-llm-txt">LLMs :3200 checking…</span>
+      </span>
+      <span id="pill-wa" class="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full badge-gray whitespace-nowrap">
+        <span class="dot-amber"></span><span id="pill-wa-txt">WhatsApp checking…</span>
+      </span>
+      <span id="pill-ms" class="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full badge-gray whitespace-nowrap">
+        <span class="dot-amber"></span><span id="pill-ms-txt">MediSuite :3000 checking…</span>
+      </span>
     </div>
-    </div>
+
+    <button onclick="refreshAll()" class="btn btn-secondary btn-sm flex-shrink-0">
+      <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+    </button>
   </header>
 
-  <!-- MAIN VIEWPORT CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+  <!-- ══════════════════════════════════════════════════════════
+       BODY: SIDEBAR + MAIN
+  ══════════════════════════════════════════════════════════ -->
+  <div class="flex flex-1 overflow-hidden" style="height:calc(100vh - 56px)">
 
-    <!-- ===================================================================== -->
-    <!-- TAB 1: AGENCY ROSTER (TEAM OVERVIEW)                                  -->
-    <!-- ===================================================================== -->
-    <section id="tab-roster" class="tab-pane space-y-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-brand-card via-[#1A1A2E] to-brand-card p-6 rounded-2xl border border-brand-border">
-        <div>
-          <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-            <span>🏛️</span> OnyxIQ Autonomous Marketing Team
-          </h1>
-          <p class="text-sm text-gray-400 mt-1 max-w-2xl">
-            A full-stack, autonomous inbound and outbound agency built on the <strong class="text-indigo-400">msitarzewski/agency-agents</strong> framework. Plug in ANY SaaS product to generate high-converting authority content, carousels, and Hormozi Grand Slam Offers.
-          </p>
-        </div>
-        <div class="flex items-center gap-3">
-          <button onclick="switchTab('analyst')" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/25 transition">
-            <i data-lucide="sparkles" class="w-4 h-4"></i>
-            <span>Analyze New SaaS</span>
-          </button>
-        </div>
+    <!-- ── SIDEBAR NAV ── -->
+    <aside class="sidebar flex flex-col overflow-y-auto py-3 flex-shrink-0">
+      <div class="px-4 mb-2">
+        <p class="text-[10px] text-slate-400 font-mono uppercase font-semibold tracking-wider">Pipeline</p>
+      </div>
+      <div class="nav-item active" onclick="switchTab('prospector')" id="nav-prospector">
+        <i data-lucide="compass" class="nav-icon text-cyan-500"></i>
+        <span>Lead Discovery</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('leads')" id="nav-leads">
+        <i data-lucide="git-branch" class="nav-icon text-indigo-500"></i>
+        <span>Lead Pipeline</span>
+        <span id="nav-leads-count" class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-full badge-purple">0</span>
+      </div>
+      <div class="px-4 mt-4 mb-2">
+        <p class="text-[10px] text-slate-400 font-mono uppercase font-semibold tracking-wider">Content</p>
+      </div>
+      <div class="nav-item" onclick="switchTab('analyst')" id="nav-analyst">
+        <i data-lucide="cpu" class="nav-icon text-amber-500"></i>
+        <span>SaaS Analyst</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('studio')" id="nav-studio">
+        <i data-lucide="pen-tool" class="nav-icon text-pink-500"></i>
+        <span>Content Studio</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('queue')" id="nav-queue">
+        <i data-lucide="send" class="nav-icon text-emerald-500"></i>
+        <span>Publish Queue</span>
+        <span id="nav-queue-count" class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded-full badge-amber">0</span>
+      </div>
+      <div class="px-4 mt-4 mb-2">
+        <p class="text-[10px] text-slate-400 font-mono uppercase font-semibold tracking-wider">Team</p>
+      </div>
+      <div class="nav-item" onclick="switchTab('roster')" id="nav-roster">
+        <i data-lucide="users" class="nav-icon text-slate-500"></i>
+        <span>Agency Roster</span>
       </div>
 
-      <!-- Agent Categories Filter -->
-      <div class="flex items-center justify-between border-b border-brand-border pb-3">
-        <div class="flex items-center gap-2" id="roster-filters">
-          <button onclick="filterRoster('ALL')" class="filter-btn active text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 text-white">All Agents (8)</button>
-          <button onclick="filterRoster('Strategist & Analyst')" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">Strategists & Analysts</button>
-          <button onclick="filterRoster('Copywriter & Creator')" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">Copywriters & Creators</button>
-          <button onclick="filterRoster('Publishing & Operations')" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">Publishing & Ops</button>
+      <!-- Bottom: stats strip -->
+      <div class="mt-auto px-4 pb-3 pt-5 space-y-2">
+        <div class="text-[10px] text-slate-400 font-mono uppercase font-semibold tracking-wider mb-1">Pipeline Stats</div>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-slate-500">Total Leads</span>
+          <span id="stat-total" class="font-bold text-slate-800">—</span>
         </div>
-        <div class="text-xs font-mono text-gray-400">
-          Engine: <span class="text-emerald-400 font-semibold">Groq Llama 3.3 70B</span>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-slate-500">Tier 1</span>
+          <span id="stat-t1" class="font-bold text-emerald-600">—</span>
         </div>
-      </div>
-
-      <!-- Agent Grid Cards -->
-      <div id="roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Rendered dynamically via JS -->
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 2: UNIVERSAL SAAS ANALYST & OFFER ARCHITECT                       -->
-    <!-- ===================================================================== -->
-    <section id="tab-analyst" class="tab-pane hidden space-y-6">
-      <div class="bg-brand-card p-6 rounded-2xl border border-brand-border space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <span>🧠</span> Universal SaaS Product Analyst & Offer Architect
-            </h2>
-            <p class="text-xs text-gray-400 mt-1">
-              Deconstructs ANY SaaS product into an Alex Hormozi Value Equation Grand Slam Offer, Friday-afternoon nightmare, and 4 content pillars.
-            </p>
-          </div>
-          <!-- Quick Seeds -->
-          <div class="flex items-center gap-2">
-            <span class="text-[11px] text-gray-400 font-mono">Quick Seed:</span>
-            <button onclick="loadSeed('medisuite')" class="text-xs px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition">MediSuite (Healthcare)</button>
-            <button onclick="loadSeed('flowinvoice')" class="text-xs px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20 transition">FlowInvoice (FinTech)</button>
-            <button onclick="loadSeed('talentradar')" class="text-xs px-2.5 py-1 rounded bg-pink-500/10 text-pink-400 border border-pink-500/30 hover:bg-pink-500/20 transition">TalentRadar (DevTools)</button>
-          </div>
-        </div>
-
-        <!-- SaaS Input Form -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">SaaS Product Name</label>
-            <input type="text" id="saas-name" placeholder="e.g. MediSuite AI, FlowInvoice, AcmeCloud" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Category / Domain</label>
-            <input type="text" id="saas-category" placeholder="e.g. Healthcare Clinical OS, FinTech, DevTools" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Target Decision Maker (ICP)</label>
-            <input type="text" id="saas-target-audience" placeholder="e.g. Clinic Owners, VPs of Eng, Agency Founders" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
-          </div>
-          <div class="md:col-span-3">
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Product Pitch, URL, or Core Feature Description</label>
-            <textarea id="saas-description" rows="3" placeholder="Paste product brief, landing page text, or core capabilities... (e.g. 30-second ambient voice prescriptions, automated WhatsApp clinic bot, drops no-shows by 85%)" class="w-full bg-black/50 border border-brand-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"></textarea>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-end gap-3 pt-2">
-          <button onclick="runSaaSAnalysis()" id="btn-analyze-saas" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
-            <i data-lucide="cpu" class="w-4 h-4"></i>
-            <span>Deconstruct SaaS & Synthesize Offer</span>
-          </button>
+        <div class="flex justify-between text-[11px] font-mono">
+          <span class="text-slate-500">Dispatched</span>
+          <span id="stat-disp" class="font-bold text-indigo-600">—</span>
         </div>
       </div>
+    </aside>
 
-      <!-- Analysis Results Dashboard (Hidden initially) -->
-      <div id="saas-analysis-results" class="hidden space-y-4">
+    <!-- ── MAIN SCROLL AREA ── -->
+    <main class="flex-1 overflow-y-auto p-6">
+
+      <!-- ══════════════════════════════════════════════
+           TAB 1: LEAD DISCOVERY (OUTBOUND PROSPECTOR)
+      ══════════════════════════════════════════════ -->
+      <div id="panel-prospector" class="panel active space-y-5">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-            <span>Synthesized SaaS Positioning Intelligence</span>
-          </h3>
-          <button onclick="sendProfileToStudio()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-            <span>Send to Inbound Content Studio</span>
-          </button>
-        </div>
-
-        <!-- 3-Column Diagnostic Breakdown -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Card 1: ICP & Nightmare -->
-          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-pink-500 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-mono text-pink-400 font-bold uppercase tracking-wider">Target ICP & Pain</span>
-              <span class="text-xs">🎯</span>
-            </div>
-            <h4 id="res-icp-title" class="font-bold text-white text-sm">Target ICP</h4>
-            <div class="bg-black/40 p-3 rounded-xl border border-white/5 space-y-2 text-xs">
-              <div>
-                <span class="text-gray-400 block text-[10px] uppercase font-mono">Friday Headache:</span>
-                <p id="res-icp-frustration" class="text-gray-200 mt-0.5">...</p>
-              </div>
-              <div>
-                <span class="text-gray-400 block text-[10px] uppercase font-mono">Cost of Inaction:</span>
-                <p id="res-icp-inaction" class="text-red-300 mt-0.5">...</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2: Breakthrough Mechanism -->
-          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-indigo-500 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-mono text-indigo-400 font-bold uppercase tracking-wider">The New Opportunity</span>
-              <span class="text-xs">⚡</span>
-            </div>
-            <h4 id="res-solution-title" class="font-bold text-white text-sm">Breakthrough Mechanism</h4>
-            <p id="res-solution-text" class="text-xs text-gray-300 leading-relaxed">...</p>
-            <div class="pt-2 border-t border-white/5">
-              <span class="text-[10px] font-mono text-gray-400 uppercase block mb-1">Key Features:</span>
-              <ul id="res-features-list" class="text-xs text-gray-300 space-y-1"></ul>
-            </div>
-          </div>
-
-          <!-- Card 3: Alex Hormozi Grand Slam Offer -->
-          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-500 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-mono text-amber-400 font-bold uppercase tracking-wider">Grand Slam Offer</span>
-              <span class="text-xs">🏆</span>
-            </div>
-            <div class="space-y-2 text-xs">
-              <div class="bg-black/40 p-2.5 rounded-lg border border-white/5">
-                <span class="text-[10px] font-mono text-amber-400 block">Dream Outcome:</span>
-                <span id="res-offer-outcome" class="text-white font-medium">...</span>
-              </div>
-              <div class="bg-black/40 p-2.5 rounded-lg border border-white/5">
-                <span class="text-[10px] font-mono text-emerald-400 block">Risk-Reversal Guarantee:</span>
-                <span id="res-offer-guarantee" class="text-emerald-300">...</span>
-              </div>
-              <div class="bg-black/40 p-2.5 rounded-lg border border-white/5">
-                <span class="text-[10px] font-mono text-indigo-400 block">High-Converting CTA:</span>
-                <span id="res-offer-cta" class="text-indigo-300 font-mono text-[11px]">...</span>
-              </div>
-            </div>
+          <div>
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="compass" class="w-5 h-5 text-cyan-500"></i>
+              Lead Discovery
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5">Search Google Places, run digital audit, score opportunity, push to pipeline — all in one click.</p>
           </div>
         </div>
 
-        <!-- 4 Content Pillars Preview -->
-        <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-3">
-          <h4 class="text-xs font-bold text-white uppercase font-mono tracking-wider flex items-center gap-2">
-            <span>📚</span> 4 Strategic Inbound Content Pillars & Lead Magnet
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
-              <span class="text-[10px] text-pink-400 font-mono block mb-1">Pillar 1: Contrarian Take</span>
-              <p id="res-pillar-contrarian" class="text-gray-300">...</p>
+        <!-- Search Form -->
+        <div class="card p-5 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="md:col-span-1">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Business Type / Niche</label>
+              <input id="p-niche" type="text" placeholder="e.g. Dental Clinics" class="w-full" />
             </div>
-            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
-              <span class="text-[10px] text-amber-400 font-mono block mb-1">Pillar 2: Bottleneck Teardown</span>
-              <p id="res-pillar-bottleneck" class="text-gray-300">...</p>
-            </div>
-            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
-              <span class="text-[10px] text-indigo-400 font-mono block mb-1">Pillar 3: 3 Levers</span>
-              <ul id="res-pillar-levers" class="text-gray-300 space-y-1 text-[11px]"></ul>
-            </div>
-            <div class="bg-black/40 p-3 rounded-xl border border-white/5">
-              <span class="text-[10px] text-emerald-400 font-mono block mb-1">Pillar 4: Lead Magnet Idea</span>
-              <p id="res-pillar-magnet" class="text-emerald-300 font-medium">...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 3: INBOUND CONTENT STUDIO (GENERATION WORKBENCH)                  -->
-    <!-- ===================================================================== -->
-    <section id="tab-studio" class="tab-pane hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Left Controls Column (4 cols) -->
-        <div class="lg:col-span-4 space-y-4">
-          <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-4">
-            <h3 class="font-bold text-white text-sm flex items-center gap-2">
-              <span>🎛️</span> Generation Controls
-            </h3>
-
-            <!-- SaaS Selector -->
             <div>
-              <label class="block text-xs font-semibold text-gray-300 mb-1">Target SaaS Profile</label>
-              <select id="studio-saas-select" onchange="onStudioSaaSChange()" class="w-full bg-black/50 border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
-                <option value="current">Current Synthesized Profile</option>
-                <option value="medisuite">MediSuite AI (Clinical OS)</option>
-                <option value="flowinvoice">FlowInvoice (FinTech)</option>
-                <option value="talentradar">TalentRadar AI (DevTools)</option>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">City / Location</label>
+              <input id="p-location" type="text" placeholder="e.g. Lucknow" class="w-full" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Target SaaS</label>
+              <input id="p-saas" type="text" placeholder="e.g. MediSuite AI" class="w-full" value="MediSuite AI" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Result Limit</label>
+              <select id="p-limit" class="w-full">
+                <option value="5">5 results</option>
+                <option value="10" selected>10 results</option>
+                <option value="15">15 results</option>
+                <option value="20">20 results</option>
               </select>
             </div>
+          </div>
 
-            <!-- Platform / Format -->
+          <!-- Preset buttons -->
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs text-slate-400 font-mono self-center">Quick Search:</span>
+            <button onclick="fillAndSearch('Dental Clinics','Lucknow','MediSuite AI')" class="btn btn-secondary btn-sm">🦷 Dental – Lucknow</button>
+            <button onclick="fillAndSearch('Heart Specialist Clinics','New Delhi','MediSuite AI')" class="btn btn-secondary btn-sm">❤️ Cardio – Delhi</button>
+            <button onclick="fillAndSearch('Freight Forwarding Companies','Mumbai','FlowInvoice AI')" class="btn btn-secondary btn-sm">🚢 Freight – Mumbai</button>
+            <button onclick="fillAndSearch('CA Firms','Bangalore','FlowInvoice AI')" class="btn btn-secondary btn-sm">📊 CA Firms – Blr</button>
+            <button onclick="fillAndSearch('Orthopedic Clinics','Hyderabad','MediSuite AI')" class="btn btn-secondary btn-sm">🦴 Ortho – Hyd</button>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <span id="p-count-label" class="text-xs font-mono text-slate-400"></span>
+            <button id="btn-search" onclick="runProspectorSearch(event)" class="btn btn-primary">
+              <i data-lucide="search" class="w-4 h-4"></i>
+              Search & Audit
+            </button>
+          </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="p-results" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div class="col-span-full text-center py-16 text-slate-400 text-sm">
+            <i data-lucide="compass" class="w-10 h-10 mx-auto mb-3 text-slate-300"></i>
+            Enter a niche and city above, then click "Search & Audit" to discover leads.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           TAB 2: LEAD PIPELINE (KANBAN)
+      ══════════════════════════════════════════════ -->
+      <div id="panel-leads" class="panel space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="git-branch" class="w-5 h-5 text-indigo-500"></i>
+              Lead Pipeline
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5">Click any card to open dossier, cadence messages, and 1-click WhatsApp dispatch.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="leads-total-badge" class="text-xs font-mono px-2.5 py-1 rounded-full badge-purple">0 leads</span>
+            <button onclick="loadLeads()" class="btn btn-secondary btn-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+
+        <!-- Capture New Lead (Collapsible) -->
+        <details class="card">
+          <summary class="p-4 cursor-pointer select-none font-semibold text-sm text-slate-700 flex items-center gap-2 list-none">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-500"></i>
+            Capture New Inbound Lead
+            <span class="ml-auto text-xs text-slate-400 font-normal">Click to expand</span>
+          </summary>
+          <div class="px-4 pb-4 border-t border-slate-100 pt-3">
+            <form id="lead-capture-form" onsubmit="captureLead(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name *</label>
+                <input id="lead-name" type="text" required placeholder="Dr. Rajesh Sharma" class="w-full" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Organisation</label>
+                <input id="lead-org" type="text" placeholder="Apex Clinic, Lucknow" class="w-full" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Phone / WhatsApp *</label>
+                <input id="lead-phone" type="text" required placeholder="919876543210" class="w-full" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Channel</label>
+                <select id="lead-channel" class="w-full">
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="twitter">Twitter/X</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="outbound">Outbound</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Target SaaS</label>
+                <input id="lead-saas" type="text" placeholder="MediSuite AI" value="MediSuite AI" class="w-full" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Trigger Signal</label>
+                <input id="lead-signal" type="text" placeholder="Commented 'CLINIC' on LinkedIn post" class="w-full" />
+              </div>
+              <div class="md:col-span-3 flex items-center gap-3">
+                <button type="submit" id="btn-ingest-lead" class="btn btn-primary">
+                  <i data-lucide="zap" class="w-4 h-4"></i>
+                  Score & Generate Dossier
+                </button>
+                <button type="button" onclick="fillLeadDemo(1)" class="btn btn-secondary btn-sm">Fill: Dr. Sharma</button>
+                <button type="button" onclick="fillLeadDemo(2)" class="btn btn-secondary btn-sm">Fill: Vikram</button>
+                <button type="button" onclick="fillLeadDemo(3)" class="btn btn-secondary btn-sm">Fill: Dr. Priya</button>
+              </div>
+            </form>
+          </div>
+        </details>
+
+        <!-- Kanban Board -->
+        <div class="flex gap-4 overflow-x-auto pb-2">
+          <!-- Col: CAPTURED -->
+          <div class="kanban-col flex-shrink-0" style="min-width:220px">
+            <div class="kanban-header bg-slate-100 text-slate-600 flex items-center justify-between">
+              <span>⬛ Captured</span>
+              <span id="col-count-captured" class="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-200">0</span>
+            </div>
+            <div id="col-captured" class="kanban-body bg-slate-50 rounded-b-lg border border-t-0 border-slate-200"></div>
+          </div>
+          <!-- Col: SCORED -->
+          <div class="kanban-col flex-shrink-0" style="min-width:220px">
+            <div class="kanban-header bg-amber-50 text-amber-700 flex items-center justify-between">
+              <span>⚡ Scored</span>
+              <span id="col-count-scored" class="text-xs font-mono px-2 py-0.5 rounded-full bg-amber-100">0</span>
+            </div>
+            <div id="col-scored" class="kanban-body bg-amber-50/40 rounded-b-lg border border-t-0 border-amber-200"></div>
+          </div>
+          <!-- Col: DOSSIER_READY -->
+          <div class="kanban-col flex-shrink-0" style="min-width:220px">
+            <div class="kanban-header bg-indigo-50 text-indigo-700 flex items-center justify-between">
+              <span>📋 Dossier Ready</span>
+              <span id="col-count-dossier" class="text-xs font-mono px-2 py-0.5 rounded-full bg-indigo-100">0</span>
+            </div>
+            <div id="col-dossier" class="kanban-body bg-indigo-50/40 rounded-b-lg border border-t-0 border-indigo-200"></div>
+          </div>
+          <!-- Col: DISPATCHED -->
+          <div class="kanban-col flex-shrink-0" style="min-width:220px">
+            <div class="kanban-header bg-emerald-50 text-emerald-700 flex items-center justify-between">
+              <span>✅ Dispatched</span>
+              <span id="col-count-dispatched" class="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-100">0</span>
+            </div>
+            <div id="col-dispatched" class="kanban-body bg-emerald-50/40 rounded-b-lg border border-t-0 border-emerald-200"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           TAB 3: SAAS ANALYST
+      ══════════════════════════════════════════════ -->
+      <div id="panel-analyst" class="panel space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="cpu" class="w-5 h-5 text-amber-500"></i>
+              Universal SaaS Analyst
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5">Deconstruct any SaaS into ICP, Grand Slam Offer, and content pillars using the Hormozi Value Equation.</p>
+          </div>
+        </div>
+
+        <div class="card p-5 space-y-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-slate-400 font-mono">Quick seed:</span>
+            <button onclick="loadSeed('medisuite')" class="btn btn-secondary btn-sm">🏥 MediSuite</button>
+            <button onclick="loadSeed('flowinvoice')" class="btn btn-secondary btn-sm">💰 FlowInvoice</button>
+            <button onclick="loadSeed('talentradar')" class="btn btn-secondary btn-sm">🎯 TalentRadar</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-300 mb-1">Channel & Format</label>
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <button type="button" onclick="selectChannel('linkedin')" class="chan-btn active px-3 py-2 rounded-lg bg-blue-600/20 text-blue-300 border border-blue-500/30 flex items-center gap-1.5 font-medium">
-                  <span>💼</span> LinkedIn Post
-                </button>
-                <button type="button" onclick="selectChannel('carousel')" class="chan-btn px-3 py-2 rounded-lg bg-black/40 text-gray-400 border border-brand-border hover:text-white flex items-center gap-1.5 font-medium">
-                  <span>🎠</span> 6-Slide Carousel
-                </button>
-                <button type="button" onclick="selectChannel('twitter')" class="chan-btn px-3 py-2 rounded-lg bg-black/40 text-gray-400 border border-brand-border hover:text-white flex items-center gap-1.5 font-medium">
-                  <span>🐦</span> 5-Tweet Thread
-                </button>
-                <button type="button" onclick="selectChannel('repurpose')" class="chan-btn px-3 py-2 rounded-lg bg-black/40 text-gray-400 border border-brand-border hover:text-white flex items-center gap-1.5 font-medium">
-                  <span>📡</span> Omni-Bundle (4)
-                </button>
-              </div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">SaaS Name</label>
+              <input id="saas-name" type="text" placeholder="e.g. MediSuite AI" class="w-full" />
             </div>
-
-            <!-- Custom Angle / Topic -->
             <div>
-              <label class="block text-xs font-semibold text-gray-300 mb-1">Custom Angle / Topic (Optional)</label>
-              <textarea id="studio-topic" rows="2" placeholder="e.g. Why typing prescriptions costs clinics ₹1.5L/mo, or leave blank to use synthesized contrarian take..." class="w-full bg-black/50 border border-brand-border rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+              <input id="saas-category" type="text" placeholder="e.g. Healthcare Clinical OS" class="w-full" />
             </div>
-
-            <button onclick="triggerContentGeneration()" id="btn-generate-content" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
-              <span>Generate Content</span>
-            </button>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Target ICP</label>
+              <input id="saas-target-audience" type="text" placeholder="e.g. Clinic Owners" class="w-full" />
+            </div>
+            <div class="md:col-span-3">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Product Pitch / Features</label>
+              <textarea id="saas-description" rows="3" placeholder="Paste product description, landing page copy, or feature list…" class="w-full"></textarea>
+            </div>
           </div>
-
-          <!-- Active Agency Agent Helper Card -->
-          <div class="glass-card p-4 rounded-xl border border-brand-border text-xs space-y-2">
-            <div class="flex items-center gap-2 text-indigo-400 font-mono text-[11px] font-bold">
-              <span id="active-agent-icon">💼</span>
-              <span id="active-agent-name">LinkedIn Content Creator</span>
-            </div>
-            <p id="active-agent-desc" class="text-gray-400 text-[11px] leading-relaxed">
-              Enforcing: 3 Hook Variants, Line 1 < 10 words, Line 2 blank, 0 links in body, 3-5 hyper-targeted hashtags, Golden Hour organic CTA.
-            </p>
+          <div class="flex justify-end">
+            <button onclick="runSaaSAnalysis()" id="btn-analyze-saas" class="btn btn-primary">
+              <i data-lucide="cpu" class="w-4 h-4"></i>
+              Analyse & Synthesize Offer
+            </button>
           </div>
         </div>
 
-        <!-- Right Output Editor Column (8 cols) -->
-        <div class="lg:col-span-8 space-y-4">
-          <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-3">
-            <div class="flex items-center justify-between border-b border-brand-border/60 pb-3">
-              <div class="flex items-center gap-3">
-                <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                  <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
-                  <span>Live Content Workbench</span>
-                </span>
-                <span id="char-counter" class="text-[10px] font-mono px-2 py-0.5 rounded bg-black/40 text-gray-400 border border-white/5">0 chars</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <button onclick="runMasterPolisher()" class="px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-medium flex items-center gap-1 transition" title="Purge AI tells and polish formatting">
-                  <span>💎</span> Polish
-                </button>
-                <button onclick="copyGeneratedContent()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-200 text-xs font-medium flex items-center gap-1 transition">
-                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
-                </button>
-                <button onclick="saveToPublishQueue()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1 shadow-md shadow-emerald-600/25 transition">
-                  <i data-lucide="send" class="w-3.5 h-3.5"></i> Queue for Publishing
-                </button>
-              </div>
-            </div>
-
-            <!-- Hook Switcher (Shown if LinkedIn) -->
-            <div id="hook-switcher-bar" class="hidden p-2 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between gap-2 text-xs font-mono">
-              <span class="text-[11px] text-gray-400">Quick Hook:</span>
-              <div class="flex gap-1.5">
-                <button onclick="applyHook(1)" class="px-2.5 py-1 rounded bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[11px]">Hook 1 (Curiosity)</button>
-                <button onclick="applyHook(2)" class="px-2.5 py-1 rounded bg-pink-600/20 hover:bg-pink-600/40 text-pink-300 text-[11px]">Hook 2 (Contrarian)</button>
-                <button onclick="applyHook(3)" class="px-2.5 py-1 rounded bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 text-[11px]">Hook 3 (Metric)</button>
+        <!-- Analysis results -->
+        <div id="saas-analysis-results" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Synthesized Positioning Intelligence
+            </h3>
+            <button onclick="sendProfileToStudio()" class="btn btn-success btn-sm">
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              Send to Content Studio
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="card p-4 space-y-2 border-l-4 border-pink-400">
+              <span class="text-[10px] font-mono font-bold text-pink-500 uppercase tracking-wider">Target ICP & Pain</span>
+              <h4 id="res-icp-title" class="font-bold text-slate-800 text-sm"></h4>
+              <div class="space-y-2 text-xs">
+                <div>
+                  <span class="text-slate-400 block text-[10px] uppercase font-mono">Friday Headache:</span>
+                  <p id="res-icp-frustration" class="text-slate-700 mt-0.5"></p>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px] uppercase font-mono">Cost of Inaction:</span>
+                  <p id="res-icp-inaction" class="text-rose-600 mt-0.5 font-medium"></p>
+                </div>
               </div>
             </div>
-
-            <!-- Content Editable Output -->
-            <textarea id="studio-editor" rows="18" placeholder="Generated copy will appear here... Click 'Generate Content' to start." class="w-full bg-[#0A0A10] border border-brand-border/60 rounded-xl p-4 text-xs text-gray-200 focus:outline-none focus:border-indigo-500 font-mono leading-relaxed resize-y"></textarea>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 4: PUBLISHING PIPELINE & QUEUE                                    -->
-    <!-- ===================================================================== -->
-    <section id="tab-queue" class="tab-pane hidden space-y-6">
-      <div class="flex items-center justify-between bg-brand-card p-6 rounded-2xl border border-brand-border">
-        <div>
-          <h2 class="text-xl font-bold text-white flex items-center gap-2">
-            <span>📬</span> Social Publishing Pipeline & Review Desk
-          </h2>
-          <p class="text-xs text-gray-400 mt-1">
-            Review generated drafts in <span class="font-mono text-amber-300">WAITING</span> status, toggle Boss Approval, and publish via Buffer.
-          </p>
-        </div>
-        <button onclick="loadQueue()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          <span>Sync Pipeline</span>
-        </button>
-      </div>
-
-      <!-- Posts List -->
-      <div id="posts-container" class="space-y-3">
-        <!-- Rendered dynamically -->
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 5: LEAD CONVERSION & CLOSED-LOOP HUB (PHASE 3)                    -->
-    <!-- ===================================================================== -->
-    <section id="tab-leads" class="tab-pane hidden space-y-6">
-      <!-- Funnel Overview Banner -->
-      <div class="bg-gradient-to-r from-brand-card via-[#16192E] to-brand-card p-6 rounded-2xl border border-brand-border space-y-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <span>🎯</span> Closed-Loop Inbound → Outbound Growth Machine
-              <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 font-mono border border-emerald-500/30 font-bold">Phase 3 Live</span>
-            </h2>
-            <p class="text-xs text-gray-400 mt-1">
-              Social inbound posts generate comment signals (e.g. <span class="font-mono text-amber-300 font-bold">'CLINIC'</span> or <span class="font-mono text-cyan-300 font-bold">'INVOICE'</span>). 
-              Our cognitive engine scores urgency, synthesizes Alex Hormozi Grand Slam Offers, and dispatches automated WhatsApp outreach to close subscriptions.
-            </p>
-          </div>
-          <button onclick="loadLeads()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            <span>Refresh Leads</span>
-          </button>
-        </div>
-
-        <!-- Funnel Flow Diagram -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 pt-2 border-t border-brand-border/40 text-center">
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
-            <div class="text-[10px] text-gray-400 font-mono uppercase">1. Inbound Post</div>
-            <div class="text-xs font-bold text-indigo-300 mt-0.5">Viral Hook & CTA</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
-            <div class="text-[10px] text-gray-400 font-mono uppercase">2. Signal Ingestion</div>
-            <div class="text-xs font-bold text-amber-300 mt-0.5">Comment 'KEYWORD'</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
-            <div class="text-[10px] text-gray-400 font-mono uppercase">3. Agency Cognition</div>
-            <div class="text-xs font-bold text-emerald-300 mt-0.5">Score & Grand Slam</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
-            <div class="text-[10px] text-gray-400 font-mono uppercase">4. WhatsApp Dispatch</div>
-            <div class="text-xs font-bold text-cyan-300 mt-0.5">Baileys Gateway</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-black/40 border border-white/5 col-span-2 md:col-span-1">
-            <div class="text-[10px] text-gray-400 font-mono uppercase">5. Conversion Close</div>
-            <div class="text-xs font-bold text-rose-300 mt-0.5">14-Day Trial Activation</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ingest New Lead Form -->
-      <div class="glass-card p-6 rounded-2xl border border-brand-border space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border/60 pb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📥</span>
-            <h3 class="text-sm font-bold text-white">Ingest Inbound Social Lead or Commenter</h3>
-          </div>
-          <!-- Quick Load Pre-set Leads -->
-          <div class="flex flex-wrap items-center gap-1.5 text-xs font-mono">
-            <span class="text-gray-500 text-[11px] mr-1">Quick Load:</span>
-            <button onclick="fillLeadDemo(1)" class="px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition text-[11px]">
-              Dr. Sharma ('CLINIC')
-            </button>
-            <button onclick="fillLeadDemo(2)" class="px-2 py-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition text-[11px]">
-              Vikram ('INVOICE')
-            </button>
-            <button onclick="fillLeadDemo(3)" class="px-2 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition text-[11px]">
-              Dr. Priya (WhatsApp)
-            </button>
-          </div>
-        </div>
-
-        <form id="lead-capture-form" onsubmit="captureLead(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Prospect / Doctor Name *</label>
-            <input type="text" id="lead-name" required placeholder="e.g. Dr. Rajesh Sharma" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Organization / Clinic Name *</label>
-            <input type="text" id="lead-org" required placeholder="e.g. Apex Health Clinic, Lucknow" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Phone / WhatsApp Number *</label>
-            <input type="text" id="lead-phone" required placeholder="e.g. 919876543210" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Inbound Channel</label>
-            <select id="lead-channel" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
-              <option value="linkedin">LinkedIn Comment</option>
-              <option value="twitter">Twitter / X Reply</option>
-              <option value="whatsapp">Direct WhatsApp Inbound</option>
-              <option value="outbound">Outbound Lead Scraping</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Target SaaS Solution</label>
-            <select id="lead-saas" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
-              <option value="MediSuite AI">MediSuite AI (Clinical Voice & EHR)</option>
-              <option value="FlowInvoice AI">FlowInvoice AI (FinTech Invoice OCR)</option>
-              <option value="TalentRadar AI">TalentRadar AI (Recruitment Scoring)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Trigger Signal / Comment Text *</label>
-            <input type="text" id="lead-signal" required placeholder="e.g. Commented 'CLINIC' on burnout post" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-indigo-500 font-mono">
-          </div>
-          <div class="md:col-span-3 flex justify-end pt-1">
-            <button type="submit" id="btn-ingest-lead" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
-              <i data-lucide="zap" class="w-4 h-4"></i>
-              <span>🚀 Ingest & Run Full Cognitive Pipeline (Score + Grand Slam + Cadence)</span>
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- 4-Stage Kanban Pipeline Board -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <span>📊</span> Live Conversion Pipeline Board
-          </h3>
-          <span class="text-xs font-mono text-gray-400" id="leads-total-count">Total: 3 Leads</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- Col 1: Captured -->
-          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
-            <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                <span>1. Inbound Captured</span>
-              </span>
-              <span id="col-count-captured" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300">0</span>
+            <div class="card p-4 space-y-2 border-l-4 border-indigo-400">
+              <span class="text-[10px] font-mono font-bold text-indigo-500 uppercase tracking-wider">Breakthrough Mechanism</span>
+              <h4 id="res-solution-title" class="font-bold text-slate-800 text-sm"></h4>
+              <p id="res-solution-text" class="text-xs text-slate-600 leading-relaxed"></p>
+              <ul id="res-features-list" class="text-xs text-slate-700 space-y-1"></ul>
             </div>
-            <div id="col-captured" class="space-y-2.5 min-h-[220px]"></div>
-          </div>
-
-          <!-- Col 2: Scored -->
-          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
-            <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>2. Signal Scored</span>
-              </span>
-              <span id="col-count-scored" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300">0</span>
+            <div class="card p-4 space-y-2 border-l-4 border-amber-400">
+              <span class="text-[10px] font-mono font-bold text-amber-500 uppercase tracking-wider">Grand Slam Offer</span>
+              <div class="space-y-2 text-xs">
+                <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <span class="text-[10px] text-amber-500 font-mono block">Dream Outcome:</span>
+                  <span id="res-offer-outcome" class="text-slate-800 font-semibold"></span>
+                </div>
+                <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <span class="text-[10px] text-emerald-600 font-mono block">Risk-Reversal:</span>
+                  <span id="res-offer-guarantee" class="text-slate-700"></span>
+                </div>
+                <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <span class="text-[10px] text-indigo-500 font-mono block">CTA:</span>
+                  <span id="res-offer-cta" class="text-indigo-700 font-mono text-[11px]"></span>
+                </div>
+              </div>
             </div>
-            <div id="col-scored" class="space-y-2.5 min-h-[220px]"></div>
           </div>
-
-          <!-- Col 3: Dossier Ready -->
-          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
-            <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-                <span>3. Grand Slam Ready</span>
-              </span>
-              <span id="col-count-dossier" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-purple-500/20 text-purple-300">0</span>
+          <div class="card p-4 space-y-3">
+            <h4 class="text-xs font-bold text-slate-700 uppercase font-mono tracking-wider">📚 4 Strategic Content Pillars</h4>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <span class="text-[10px] text-pink-500 font-mono block mb-1">Pillar 1: Contrarian Take</span>
+                <p id="res-pillar-contrarian" class="text-slate-700"></p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <span class="text-[10px] text-amber-500 font-mono block mb-1">Pillar 2: Bottleneck</span>
+                <p id="res-pillar-bottleneck" class="text-slate-700"></p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <span class="text-[10px] text-indigo-500 font-mono block mb-1">Pillar 3: 3 Levers</span>
+                <ul id="res-pillar-levers" class="text-slate-700 space-y-1"></ul>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <span class="text-[10px] text-emerald-600 font-mono block mb-1">Pillar 4: Lead Magnet</span>
+                <p id="res-pillar-magnet" class="text-emerald-700 font-medium"></p>
+              </div>
             </div>
-            <div id="col-dossier" class="space-y-2.5 min-h-[220px]"></div>
           </div>
+        </div>
+      </div>
 
-          <!-- Col 4: Dispatched -->
-          <div class="glass-card p-4 rounded-2xl border border-brand-border space-y-3">
-            <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>4. WhatsApp Dispatched</span>
-              </span>
-              <span id="col-count-dispatched" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300">0</span>
+      <!-- ══════════════════════════════════════════════
+           TAB 4: CONTENT STUDIO
+      ══════════════════════════════════════════════ -->
+      <div id="panel-studio" class="panel space-y-5">
+        <div>
+          <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="pen-tool" class="w-5 h-5 text-pink-500"></i>
+            Content Studio
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">Generate LinkedIn posts, carousels, Twitter threads, or omni-bundles for any SaaS.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- Controls -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="card p-4 space-y-3">
+              <h3 class="font-semibold text-slate-700 text-sm">Controls</h3>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">SaaS Profile</label>
+                <select id="studio-saas-select" onchange="onStudioSaaSChange()" class="w-full">
+                  <option value="current">Current Profile (from Analyst)</option>
+                  <option value="medisuite">MediSuite AI (Healthcare)</option>
+                  <option value="flowinvoice">FlowInvoice (FinTech)</option>
+                  <option value="talentradar">TalentRadar AI (DevTools)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Format</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="selectChannel('linkedin')" class="chan-btn btn btn-primary btn-sm justify-center" data-chan="linkedin">💼 LinkedIn</button>
+                  <button type="button" onclick="selectChannel('carousel')" class="chan-btn btn btn-secondary btn-sm justify-center" data-chan="carousel">🎠 Carousel</button>
+                  <button type="button" onclick="selectChannel('twitter')" class="chan-btn btn btn-secondary btn-sm justify-center" data-chan="twitter">🐦 Twitter</button>
+                  <button type="button" onclick="selectChannel('repurpose')" class="chan-btn btn btn-secondary btn-sm justify-center" data-chan="repurpose">📡 Omni-Bundle</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Custom Angle (Optional)</label>
+                <textarea id="studio-topic" rows="2" placeholder="Leave blank to use synthesized pillar…" class="w-full text-sm"></textarea>
+              </div>
+              <button onclick="triggerContentGeneration()" id="btn-generate-content" class="btn btn-primary w-full justify-center">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                Generate Content
+              </button>
             </div>
-            <div id="col-dispatched" class="space-y-2.5 min-h-[220px]"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 6: OUTBOUND LEAD PROSPECTOR & DIGITAL AUDITOR (PLACES API)        -->
-    <!-- ===================================================================== -->
-    <section id="tab-prospector" class="tab-pane hidden space-y-6">
-      <div class="bg-gradient-to-r from-brand-card via-[#112233] to-brand-card p-6 rounded-2xl border border-brand-border space-y-3">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <span>🧭</span> Outbound Lead Prospector & Digital Auditor
-              <span class="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 font-mono border border-cyan-500/30 font-bold">Google Places API v1</span>
-            </h2>
-            <p class="text-xs text-gray-400 mt-1">
-              Search live businesses in any city or niche globally. Runs instant digital audits (SSL, Mobile, Booking widget, Tech stack), calculates 3-Tier Opportunity Scores, and builds Grand Slam Offers strictly in English.
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Places API Ready</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Search Controls -->
-      <div class="glass-card p-6 rounded-2xl border border-brand-border space-y-4">
-        <!-- Quick Preset Queries -->
-        <div class="flex flex-wrap items-center gap-2 text-xs font-mono pb-2 border-b border-brand-border/60">
-          <span class="text-gray-400 text-[11px] font-semibold">⚡ Popular Discovery Presets:</span>
-          <button onclick="fillProspectorDemo('Dental Clinics', 'Lucknow, India', 'MediSuite AI')" class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition text-[11px]">
-            Dental Clinics in Lucknow
-          </button>
-          <button onclick="fillProspectorDemo('Cardiologists & Heart Clinics', 'Delhi, India', 'MediSuite AI')" class="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition text-[11px]">
-            Heart Clinics in Delhi
-          </button>
-          <button onclick="fillProspectorDemo('Freight Forwarding & Logistics', 'Mumbai, India', 'FlowInvoice AI')" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition text-[11px]">
-            Freight in Mumbai
-          </button>
-          <button onclick="fillProspectorDemo('Accounting & CPA Firms', 'Bangalore, India', 'FlowInvoice AI')" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition text-[11px]">
-            CPA in Bangalore
-          </button>
-          <button onclick="fillProspectorDemo('Private Medical Clinics', 'New York, USA', 'MediSuite AI')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 transition text-[11px]">
-            Clinics in New York
-          </button>
-        </div>
-
-        <form id="prospector-form" onsubmit="runProspectorSearch(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Business Niche / Category *</label>
-            <input type="text" id="prospect-niche" required placeholder="e.g. Dental Clinics, Freight Brokers" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Target City / Location *</label>
-            <input type="text" id="prospect-location" required placeholder="e.g. Lucknow, India" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Target SaaS Solution</label>
-            <select id="prospect-saas" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
-              <option value="MediSuite AI">MediSuite AI (Clinical Voice & EHR)</option>
-              <option value="FlowInvoice AI">FlowInvoice AI (Invoice & OCR)</option>
-              <option value="TalentRadar AI">TalentRadar AI (Recruitment Scoring)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] text-gray-400 font-mono mb-1">Max Leads to Discover</label>
-            <select id="prospect-limit" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl px-3.5 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 font-mono">
-              <option value="5">5 Top Prospects</option>
-              <option value="10">10 Top Prospects</option>
-              <option value="15">15 Top Prospects</option>
-              <option value="20">20 Maximum</option>
-            </select>
-          </div>
-          <div class="md:col-span-4 flex items-center justify-between pt-2">
-            <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
-              <span>Output Language:</span>
-              <span class="text-white font-bold bg-white/5 px-2 py-0.5 rounded border border-white/10">English (en)</span>
+            <div id="active-agent-card" class="card p-3 text-xs space-y-1 border-l-4 border-indigo-400">
+              <div class="flex items-center gap-2 font-semibold text-indigo-600">
+                <span id="active-agent-icon">💼</span>
+                <span id="active-agent-name">LinkedIn Content Creator</span>
+              </div>
+              <p id="active-agent-desc" class="text-slate-500 text-[11px] leading-relaxed">3 Hook Variants, Line 1 &lt;10 words, no links in body, 3-5 hashtags, Golden Hour CTA.</p>
             </div>
-            <button type="submit" id="btn-run-prospector" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-teal-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-cyan-600/30 transition">
-              <i data-lucide="compass" class="w-4 h-4"></i>
-              <span>🔍 Discover & Audit Outbound Leads via Google Places</span>
-            </button>
           </div>
-        </form>
-      </div>
 
-      <!-- Discovered Leads Container -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <span>📋</span> Discovered & Audited Prospects
-          </h3>
-          <span id="prospector-count-label" class="text-xs font-mono text-gray-400">Ready to search</span>
-        </div>
-
-        <div id="prospector-results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Rendered dynamically -->
-          <div class="col-span-full glass-card p-12 text-center text-xs text-gray-500 font-mono space-y-2">
-            <i data-lucide="search" class="w-8 h-8 mx-auto text-gray-600"></i>
-            <div>Enter a niche and city above to discover verified business leads directly from Google Places.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- LEAD DOSSIER & WHATSAPP ACTION MODAL -->
-  <div id="lead-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="glass-card max-w-3xl w-full rounded-2xl border border-brand-border p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-brand-border pb-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <h3 id="lead-modal-name" class="font-bold text-white text-base">Dr. Rajesh Sharma</h3>
-            <span id="lead-modal-tier" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Tier 1</span>
-            <span id="lead-modal-score" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-bold">94/100</span>
-          </div>
-          <p id="lead-modal-org" class="text-xs text-gray-400 mt-0.5">Apex Multi-Specialty Clinic • MediSuite AI</p>
-        </div>
-        <button onclick="closeLeadModal()" class="p-1 rounded-lg text-gray-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Signal & SLA -->
-      <div class="p-3 bg-black/50 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono">
-        <div>
-          <span class="text-gray-400">Trigger Signal:</span>
-          <span id="lead-modal-signal" class="text-gray-200 font-semibold ml-1"></span>
-        </div>
-        <div>
-          <span id="lead-modal-sla" class="text-amber-300 font-bold"></span>
-        </div>
-      </div>
-
-      <!-- Grand Slam Offer -->
-      <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-black/40 border border-indigo-500/30 space-y-2">
-        <span class="text-[10px] font-mono uppercase text-indigo-400 font-bold block">🎯 Alex Hormozi Value Equation Offer:</span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div>
-            <span class="text-gray-400 block text-[10px]">Dream Outcome:</span>
-            <span id="lead-modal-dream" class="text-gray-200 font-semibold"></span>
-          </div>
-          <div>
-            <span class="text-gray-400 block text-[10px]">Time Delay Guarantee:</span>
-            <span id="lead-modal-delay" class="text-gray-200"></span>
-          </div>
-          <div>
-            <span class="text-gray-400 block text-[10px]">Effort & Sacrifice:</span>
-            <span id="lead-modal-effort" class="text-gray-200"></span>
-          </div>
-          <div>
-            <span class="text-gray-400 block text-[10px]">Risk-Reversal Guarantee:</span>
-            <span id="lead-modal-guarantee" class="text-emerald-400 font-semibold"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4-Touch Cadence Selector & Viewer -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-white">4-Step Multi-Touch Cadence:</span>
-          <div class="flex gap-1 text-[11px] font-mono">
-            <button onclick="switchCadenceTouch(1)" id="btn-touch-1" class="px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold">Touch 1 (Hook)</button>
-            <button onclick="switchCadenceTouch(2)" id="btn-touch-2" class="px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white">Touch 2 (Mechanism)</button>
-            <button onclick="switchCadenceTouch(3)" id="btn-touch-3" class="px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white">Touch 3 (Live Bot Demo)</button>
-            <button onclick="switchCadenceTouch(4)" id="btn-touch-4" class="px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white">Touch 4 (Soft Breakup)</button>
-          </div>
-        </div>
-        <textarea id="lead-modal-cadence-text" rows="4" class="w-full bg-[#0A0A10] border border-brand-border rounded-xl p-3 text-xs text-gray-200 font-mono leading-relaxed focus:outline-none focus:border-indigo-500"></textarea>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-brand-border">
-        <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
-          <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-400"></i>
-          <span>Target Phone:</span>
-          <span id="lead-modal-phone" class="text-white font-bold"></span>
-        </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <button onclick="copyCadenceMessage()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Copy</span>
-          </button>
-          <a id="lead-modal-wa-link" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            <span>Open WA Web</span>
-          </a>
-          <button onclick="dispatchLeadWhatsApp()" id="btn-dispatch-wa" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 transition">
-            <i data-lucide="send" class="w-3.5 h-3.5"></i>
-            <span>Dispatch via Baileys Bot (+919278009883)</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AGENT PERSONA MODAL -->
-  <div id="agent-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="glass-card max-w-2xl w-full rounded-2xl border border-brand-border p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-brand-border pb-3">
-        <div class="flex items-center gap-3">
-          <span id="modal-emoji" class="text-2xl p-2 rounded-xl bg-white/5 border border-white/10">🤖</span>
-          <div>
-            <h3 id="modal-name" class="font-bold text-white text-base">Agent Name</h3>
-            <span id="modal-category" class="text-[11px] font-mono text-indigo-400">Category</span>
-          </div>
-        </div>
-        <button onclick="closeModal()" class="p-1 rounded-lg text-gray-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="space-y-3 text-xs">
-        <div>
-          <span class="text-gray-400 font-mono text-[10px] uppercase block">Mission & Role:</span>
-          <p id="modal-role" class="text-gray-200 mt-0.5 leading-relaxed">...</p>
-        </div>
-        <div>
-          <span class="text-gray-400 font-mono text-[10px] uppercase block">Core Guidelines & Rules:</span>
-          <ul id="modal-guidelines" class="list-disc list-inside text-gray-300 mt-1 space-y-1"></ul>
-        </div>
-        <div class="bg-black/50 p-3 rounded-xl border border-white/5 flex items-center justify-between font-mono text-[11px]">
-          <span class="text-gray-400">Underlying Model:</span>
-          <span id="modal-model" class="text-emerald-400 font-semibold">groq/llama-3.3-70b-versatile</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCRIPT LOGIC -->
-  <script>
-    let currentRoster = [];
-    let currentProfile = null;
-    let selectedChannel = 'linkedin';
-
-    // Switch Tabs
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
-        btn.classList.add('text-gray-400');
-      });
-
-      const pane = document.getElementById(`tab-${tabId}`);
-      const btn = document.getElementById(`tab-btn-${tabId}`);
-      if (pane) pane.classList.remove('hidden');
-      if (btn) {
-        btn.classList.add('bg-indigo-600', 'text-white', 'shadow');
-        btn.classList.remove('text-gray-400');
-      }
-
-      if (tabId === 'roster') loadRoster();
-      if (tabId === 'queue') loadQueue();
-      if (tabId === 'leads') loadLeads();
-      if (tabId === 'prospector') lucide.createIcons();
-    }
-
-    // Load Roster
-    async function loadRoster() {
-      try {
-        const res = await fetch('/api/agents');
-        const data = await res.json();
-        if (data.success) {
-          currentRoster = data.roster;
-          renderRoster(currentRoster);
-        }
-      } catch (err) {
-        console.error('Failed to load roster:', err);
-      }
-    }
-
-    function renderRoster(agents) {
-      const grid = document.getElementById('roster-grid');
-      grid.innerHTML = agents.map(agent => `
-        <div class="glass-card glass-card-hover p-5 rounded-2xl flex flex-col justify-between cursor-pointer space-y-3" onclick="openAgentModal('${agent.id}')">
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-2xl p-2 rounded-xl bg-white/5 border border-white/10">${agent.emoji}</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${agent.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-gray-500/10 text-gray-400'}">${agent.status}</span>
-            </div>
-            <h4 class="font-bold text-white text-sm line-clamp-1">${agent.name}</h4>
-            <p class="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">${agent.role}</p>
-          </div>
-          <div class="pt-3 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-gray-400">
-            <span>${agent.category}</span>
-            <span class="text-indigo-400 font-semibold flex items-center gap-1">Inspect <i data-lucide="chevron-right" class="w-3 h-3"></i></span>
-          </div>
-        </div>
-      `).join('');
-      lucide.createIcons();
-    }
-
-    function filterRoster(category) {
-      document.querySelectorAll('#roster-filters .filter-btn').forEach(btn => {
-        btn.classList.remove('bg-white/10', 'text-white');
-        btn.classList.add('text-gray-400');
-      });
-      event.target.classList.add('bg-white/10', 'text-white');
-      event.target.classList.remove('text-gray-400');
-
-      if (category === 'ALL') {
-        renderRoster(currentRoster);
-      } else {
-        const filtered = currentRoster.filter(a => a.category === category);
-        renderRoster(filtered);
-      }
-    }
-
-    function openAgentModal(agentId) {
-      const agent = currentRoster.find(a => a.id === agentId);
-      if (!agent) return;
-      document.getElementById('modal-emoji').innerText = agent.emoji;
-      document.getElementById('modal-name').innerText = agent.name;
-      document.getElementById('modal-category').innerText = agent.category;
-      document.getElementById('modal-role').innerText = agent.role;
-      document.getElementById('modal-model').innerText = agent.model;
-      document.getElementById('modal-guidelines').innerHTML = agent.guidelines.map(g => `<li>${g}</li>`).join('');
-      document.getElementById('agent-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('agent-modal').classList.add('hidden');
-    }
-
-    // Load Quick Seeds
-    async function loadSeed(seedKey) {
-      try {
-        const seeds = {
-          medisuite: {
-            name: 'MediSuite AI',
-            category: 'Healthcare Clinical Operations SaaS',
-            targetAudience: 'Private Clinic Owners, Independent Doctors, and OPD Managers',
-            description: 'Ambient voice-to-prescription in 30 seconds combined with an autonomous WhatsApp clinic assistant that automates bookings and reminders with zero app downloads. Drops no-shows by 85%.'
-          },
-          flowinvoice: {
-            name: 'FlowInvoice',
-            category: 'FinTech / Cash Flow Automation',
-            targetAudience: 'Digital Agency Owners, Consultancies, and High-Ticket Freelancers',
-            description: 'Automated invoice collection and WhatsApp payment reminders with instant 1-click UPI links. Gets service agencies paid 3x faster without awkward manual texts.'
-          },
-          talentradar: {
-            name: 'TalentRadar AI',
-            category: 'Developer Tools & Hiring Intelligence',
-            targetAudience: 'VPs of Engineering, CTOs, and Technical Talent Leads at Scaling Startups',
-            description: 'AI evaluation engine that assesses software engineer candidates on actual production GitHub pull requests and real system diffs instead of leetcode trivia.'
-          }
-        };
-
-        const s = seeds[seedKey];
-        if (!s) return;
-        document.getElementById('saas-name').value = s.name;
-        document.getElementById('saas-category').value = s.category;
-        document.getElementById('saas-target-audience').value = s.targetAudience;
-        document.getElementById('saas-description').value = s.description;
-
-        await runSaaSAnalysis();
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // Run SaaS Analysis
-    async function runSaaSAnalysis() {
-      const btn = document.getElementById('btn-analyze-saas');
-      btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Analyzing SaaS Mechanics...</span>`;
-      lucide.createIcons();
-
-      const payload = {
-        name: document.getElementById('saas-name').value,
-        category: document.getElementById('saas-category').value,
-        targetAudience: document.getElementById('saas-target-audience').value,
-        description: document.getElementById('saas-description').value,
-      };
-
-      try {
-        const res = await fetch('/api/analyze-saas', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          currentProfile = data.profile;
-          renderAnalysisResults(currentProfile);
-        }
-      } catch (err) {
-        alert('Analysis failed: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="cpu" class="w-4 h-4"></i><span>Deconstruct SaaS & Synthesize Offer</span>`;
-        lucide.createIcons();
-      }
-    }
-
-    function renderAnalysisResults(p) {
-      document.getElementById('res-icp-title').innerText = p.targetAudience.title;
-      document.getElementById('res-icp-frustration').innerText = p.targetAudience.frustration;
-      document.getElementById('res-icp-inaction').innerText = p.targetAudience.costOfInaction;
-
-      document.getElementById('res-solution-title').innerText = p.name + ' Paradigm Shift';
-      document.getElementById('res-solution-text').innerText = p.breakthroughSolution;
-      document.getElementById('res-features-list').innerHTML = p.keyFeatures.map(f => `<li>• ${f}</li>`).join('');
-
-      document.getElementById('res-offer-outcome').innerText = p.grandSlamOffer.dreamOutcome;
-      document.getElementById('res-offer-guarantee').innerText = p.grandSlamOffer.guarantee;
-      document.getElementById('res-offer-cta').innerText = p.grandSlamOffer.cta;
-
-      document.getElementById('res-pillar-contrarian').innerText = p.contentPillars.contrarianTake;
-      document.getElementById('res-pillar-bottleneck').innerText = p.contentPillars.bottleneckTeardown;
-      document.getElementById('res-pillar-levers').innerHTML = p.contentPillars.framework3Levers.map(l => `<li>${l}</li>`).join('');
-      document.getElementById('res-pillar-magnet').innerText = p.contentPillars.leadMagnetIdea;
-
-      document.getElementById('saas-analysis-results').classList.remove('hidden');
-    }
-
-    function sendProfileToStudio() {
-      if (!currentProfile) return;
-      document.getElementById('studio-topic').value = currentProfile.contentPillars.contrarianTake;
-      switchTab('studio');
-    }
-
-    // Studio Channel Select
-    function selectChannel(chan) {
-      selectedChannel = chan;
-      document.querySelectorAll('.chan-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-blue-600/20', 'text-blue-300', 'border-blue-500/30');
-        btn.classList.add('bg-black/40', 'text-gray-400');
-      });
-      event.currentTarget.classList.add('active', 'bg-blue-600/20', 'text-blue-300', 'border-blue-500/30');
-      event.currentTarget.classList.remove('bg-black/40', 'text-gray-400');
-
-      const hookBar = document.getElementById('hook-switcher-bar');
-      if (chan === 'linkedin') hookBar.classList.remove('hidden');
-      else hookBar.classList.add('hidden');
-    }
-
-    async function triggerContentGeneration() {
-      const btn = document.getElementById('btn-generate-content');
-      btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Generating Agency Copy...</span>`;
-      lucide.createIcons();
-
-      // Ensure profile
-      const saasSelect = document.getElementById('studio-saas-select').value;
-      let profileToUse = currentProfile;
-      if (saasSelect !== 'current' || !profileToUse) {
-        const seedMap = {
-          medisuite: 'MediSuite AI',
-          flowinvoice: 'FlowInvoice',
-          talentradar: 'TalentRadar AI'
-        };
-        const pRes = await fetch('/api/analyze-saas', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: seedMap[saasSelect] || 'SaaS Platform' })
-        });
-        const pData = await pRes.json();
-        profileToUse = pData.profile;
-      }
-
-      const customAngle = document.getElementById('studio-topic').value;
-
-      try {
-        const res = await fetch('/api/generate-content', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile: profileToUse,
-            platform: selectedChannel,
-            customAngle
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          const editor = document.getElementById('studio-editor');
-          editor.value = data.content;
-          updateCharCount();
-        }
-      } catch (err) {
-        alert('Generation failed: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Generate Content</span>`;
-        lucide.createIcons();
-      }
-    }
-
-    async function runMasterPolisher() {
-      const editor = document.getElementById('studio-editor');
-      if (!editor.value.trim()) return;
-
-      try {
-        const res = await fetch('/api/polish-content', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: editor.value, platform: selectedChannel })
-        });
-        const data = await res.json();
-        if (data.success) {
-          editor.value = data.polished;
-          updateCharCount();
-        }
-      } catch (err) {
-        alert('Polisher failed: ' + err.message);
-      }
-    }
-
-    function applyHook(hookNum) {
-      const editor = document.getElementById('studio-editor');
-      const text = editor.value;
-      const hookRegex = new RegExp(`•\\s*Hook\\s*${hookNum}[^:]*:\\s*([^\\n]+)`, 'i');
-      const match = text.match(hookRegex);
-      if (match && match[1]) {
-        alert(`Selected Hook ${hookNum}: "${match[1]}"\n\nEnsure this hook is placed at the top of your post!`);
-      }
-    }
-
-    function updateCharCount() {
-      const text = document.getElementById('studio-editor').value;
-      document.getElementById('char-counter').innerText = `${text.length} chars`;
-    }
-    document.getElementById('studio-editor').addEventListener('input', updateCharCount);
-
-    function copyGeneratedContent() {
-      const text = document.getElementById('studio-editor').value;
-      navigator.clipboard.writeText(text);
-      alert('Content copied to clipboard!');
-    }
-
-    async function saveToPublishQueue() {
-      const text = document.getElementById('studio-editor').value;
-      if (!text.trim()) return alert('Generate content first before queueing!');
-
-      const topic = (currentProfile ? currentProfile.name : 'SaaS Inbound Campaign') + ' - ' + selectedChannel.toUpperCase();
-
-      try {
-        const res = await fetch('/api/posts/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topic, content: text, channel: selectedChannel })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('Post queued successfully! Switching to Publishing Pipeline...');
-          switchTab('queue');
-        }
-      } catch (e) {
-        alert('Failed to save to queue: ' + e.message);
-      }
-    }
-
-    // Load Publishing Queue
-    async function loadQueue() {
-      const container = document.getElementById('posts-container');
-      container.innerHTML = `<div class="text-xs text-gray-400 font-mono flex items-center gap-2"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Loading pipeline...</div>`;
-      lucide.createIcons();
-
-      try {
-        const res = await fetch('/api/posts');
-        const data = await res.json();
-        if (data.success && data.posts) {
-          document.getElementById('queue-count-badge').innerText = data.posts.length;
-          if (data.posts.length === 0) {
-            container.innerHTML = `<div class="p-8 text-center text-xs text-gray-500 font-mono">No posts in queue. Generate content in Studio and click "Queue for Publishing".</div>`;
-            return;
-          }
-
-          container.innerHTML = data.posts.map(post => `
-            <div class="glass-card p-5 rounded-2xl border border-brand-border space-y-3">
-              <div class="flex items-center justify-between border-b border-brand-border/60 pb-2.5">
-                <div class="flex items-center gap-2.5">
-                  <span class="text-xs font-mono font-bold text-white">#${post.id}</span>
-                  <span class="text-xs font-semibold text-gray-200">${post.topic}</span>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${post.channel || 'linkedin'}</span>
+          <!-- Editor -->
+          <div class="lg:col-span-8">
+            <div class="card p-4 h-full flex flex-col space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-indigo-500"></i>
+                  <span class="text-sm font-semibold text-slate-700">Content Workbench</span>
+                  <span id="char-counter" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">0 chars</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full ${post.boss_approval ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-300 border border-amber-500/30'}">
-                    ${post.boss_approval ? '✓ Boss Approved' : '⏳ Pending Approval'}
-                  </span>
-                  ${!post.boss_approval ? `
-                    <button onclick="approvePost(${post.id})" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
-                      1-Click Approve
-                    </button>
-                  ` : `
-                    <button onclick="alert('Post is approved and synced with Post Agent Buffer Dispatcher!')" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
-                      Dispatch
-                    </button>
-                  `}
+                  <div id="hook-switcher-bar" class="hidden flex items-center gap-1.5">
+                    <button onclick="applyHook(1)" class="btn btn-secondary btn-sm">Hook 1</button>
+                    <button onclick="applyHook(2)" class="btn btn-secondary btn-sm">Hook 2</button>
+                    <button onclick="applyHook(3)" class="btn btn-secondary btn-sm">Hook 3</button>
+                  </div>
+                  <button onclick="runMasterPolisher()" class="btn btn-secondary btn-sm">💎 Polish</button>
+                  <button onclick="copyGeneratedContent()" class="btn btn-secondary btn-sm"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="saveToPublishQueue()" class="btn btn-success btn-sm">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    Queue
+                  </button>
                 </div>
               </div>
-              <pre class="bg-black/50 p-3.5 rounded-xl border border-white/5 text-xs text-gray-300 font-mono whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">${post.content}</pre>
+              <textarea id="studio-editor" rows="22" placeholder="Click 'Generate Content' to start…" class="flex-1 w-full text-sm font-mono leading-relaxed resize-none"></textarea>
             </div>
-          `).join('');
-          lucide.createIcons();
-        }
-      } catch (err) {
-        container.innerHTML = `<div class="text-xs text-red-400 font-mono">Failed to load pipeline: ${err.message}</div>`;
-      }
-    }
+          </div>
+        </div>
+      </div>
 
-    async function approvePost(id) {
-      try {
-        const res = await fetch('/api/posts/approve', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
-        });
-        const data = await res.json();
-        if (data.success) {
-          loadQueue();
-        }
-      } catch (e) {
-        alert('Approval failed: ' + e.message);
-      }
-    }
+      <!-- ══════════════════════════════════════════════
+           TAB 5: PUBLISH QUEUE
+      ══════════════════════════════════════════════ -->
+      <div id="panel-queue" class="panel space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="send" class="w-5 h-5 text-emerald-500"></i>
+              Publish Queue
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5">Review drafts, get Boss Approval, dispatch via Buffer.</p>
+          </div>
+          <button onclick="loadQueue()" class="btn btn-secondary btn-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync</button>
+        </div>
+        <div id="posts-container" class="space-y-3">
+          <div class="text-center py-12 text-slate-400 text-sm">
+            <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 text-slate-200"></i>
+            Loading posts…
+          </div>
+        </div>
+      </div>
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // PHASE 3: LEAD CONVERSION, KANBAN & WHATSAPP DISPATCH LOGIC
-    // ═════════════════════════════════════════════════════════════════════════
-    let currentLeads = [];
-    let selectedLead = null;
-    let activeTouch = 1;
+      <!-- ══════════════════════════════════════════════
+           TAB 6: AGENCY ROSTER
+      ══════════════════════════════════════════════ -->
+      <div id="panel-roster" class="panel space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5 text-slate-500"></i>
+              Agency Roster
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5">Your autonomous AI marketing team — click any agent to run them directly.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="filterRoster('ALL')" class="filter-btn btn btn-primary btn-sm active" data-filter="ALL">All (8)</button>
+            <button onclick="filterRoster('Strategist &amp; Analyst')" class="filter-btn btn btn-secondary btn-sm" data-filter="Strategist & Analyst">Strategists</button>
+            <button onclick="filterRoster('Copywriter &amp; Creator')" class="filter-btn btn btn-secondary btn-sm" data-filter="Copywriter & Creator">Creators</button>
+            <button onclick="filterRoster('Publishing &amp; Operations')" class="filter-btn btn btn-secondary btn-sm" data-filter="Publishing & Operations">Publishing</button>
+          </div>
+        </div>
+        <div id="roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- rendered by JS -->
+        </div>
+      </div>
 
-    // Load Ecosystem Health & Connectivity
-    async function loadEcosystemStatus() {
-      try {
-        const res = await fetch('/api/ecosystem/status');
-        const data = await res.json();
-        if (data.success && data.ecosystem && data.ecosystem.nodes) {
-          const nodes = data.ecosystem.nodes;
-          
-          const llmNode = document.getElementById('node-llm');
-          if (llmNode) {
-            llmNode.className = `px-2.5 py-0.5 rounded-full border text-xs flex items-center gap-1.5 ${nodes.llm_gateway.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border-rose-500/30 text-rose-300'}`;
-            document.getElementById('node-llm-label').innerText = `OnyxIQ LLMs :3200 (${nodes.llm_gateway.modelsCount || 472} models)`;
-          }
+    </main>
+  </div>
 
-          const waNode = document.getElementById('node-wa');
-          if (waNode) {
-            waNode.className = `px-2.5 py-0.5 rounded-full border text-xs flex items-center gap-1.5 ${nodes.whatsapp_bridge.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'}`;
-            document.getElementById('node-wa-label').innerText = `WhatsApp Gateway (${nodes.whatsapp_bridge.botPhone || '+919278009883'})`;
-          }
+  <!-- ══════════════════════════════════════════════
+       LEAD DOSSIER MODAL
+  ══════════════════════════════════════════════ -->
+  <div id="lead-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeLeadModal()">
+    <div class="modal-box">
+      <div class="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
+        <div>
+          <h2 id="lead-modal-name" class="text-lg font-bold text-slate-900"></h2>
+          <p id="lead-modal-org" class="text-xs text-slate-500 mt-0.5 font-mono"></p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span id="lead-modal-tier" class="text-[11px] font-mono px-2.5 py-1 rounded-full badge-green font-bold"></span>
+          <span id="lead-modal-score" class="text-sm font-black text-indigo-600 font-mono"></span>
+          <button onclick="closeLeadModal()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+      <div class="p-5 space-y-4">
+        <!-- Signal & SLA -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+            <span class="text-[10px] text-slate-400 font-mono uppercase">Trigger Signal</span>
+            <p id="lead-modal-signal" class="text-xs text-slate-700 mt-1 font-medium"></p>
+          </div>
+          <div class="bg-amber-50 rounded-xl p-3 border border-amber-200">
+            <span class="text-[10px] text-amber-500 font-mono uppercase">Urgency SLA</span>
+            <p id="lead-modal-sla" class="text-xs text-amber-700 mt-1 font-bold"></p>
+          </div>
+        </div>
 
-          const medNode = document.getElementById('node-medisuite');
-          if (medNode) {
-            medNode.className = `px-2.5 py-0.5 rounded-full border text-xs flex items-center gap-1.5 ${nodes.medisuite_core.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-gray-500/10 border-gray-500/30 text-gray-400'}`;
-          }
-        }
-      } catch (err) {
-        console.warn('Failed to load ecosystem status:', err);
-      }
-    }
+        <!-- Grand Slam Offer -->
+        <div class="card p-4 space-y-2 border-l-4 border-amber-400">
+          <h4 class="text-xs font-bold text-amber-600 uppercase font-mono tracking-wider">🏆 Grand Slam Offer</h4>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-amber-500 font-mono block">Dream Outcome</span>
+              <p id="lead-modal-dream" class="text-slate-800 font-semibold mt-0.5"></p>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-indigo-500 font-mono block">Time Delay</span>
+              <p id="lead-modal-delay" class="text-slate-700 mt-0.5"></p>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-pink-500 font-mono block">Effort / Sacrifice</span>
+              <p id="lead-modal-effort" class="text-slate-700 mt-0.5"></p>
+            </div>
+            <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+              <span class="text-[10px] text-emerald-600 font-mono block">Risk-Reversal</span>
+              <p id="lead-modal-guarantee" class="text-emerald-700 font-semibold mt-0.5"></p>
+            </div>
+          </div>
+        </div>
 
-    // Load Leads & Render Kanban Board
-    async function loadLeads() {
-      try {
-        const res = await fetch('/api/leads');
-        const data = await res.json();
-        if (data.success && data.leads) {
-          currentLeads = data.leads;
-          renderKanban(currentLeads);
-        }
-      } catch (err) {
-        console.error('Failed to load leads:', err);
-      }
-    }
-
-    function renderKanban(leads) {
-      document.getElementById('leads-total-count').innerText = `Total: ${leads.length} Leads`;
-
-      const cols = {
-        CAPTURED: document.getElementById('col-captured'),
-        SCORED: document.getElementById('col-scored'),
-        DOSSIER_READY: document.getElementById('col-dossier'),
-        DISPATCHED: document.getElementById('col-dispatched'),
-      };
-
-      const counts = { CAPTURED: 0, SCORED: 0, DOSSIER_READY: 0, DISPATCHED: 0 };
-
-      // Clear columns
-      Object.values(cols).forEach(col => { if (col) col.innerHTML = ''; });
-
-      leads.forEach(lead => {
-        const status = lead.status === 'CONVERTED' ? 'DISPATCHED' : lead.status;
-        if (counts[status] !== undefined) counts[status]++;
-
-        const targetCol = cols[status];
-        if (!targetCol) return;
-
-        const card = document.createElement('div');
-        card.className = 'p-3.5 rounded-xl bg-black/60 border border-brand-border/80 hover:border-indigo-500/50 transition space-y-2 cursor-pointer';
-        card.onclick = () => openLeadModal(lead.id);
-
-        card.innerHTML = `
+        <!-- 4-Touch Cadence -->
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-white">${lead.name}</span>
-            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded ${lead.tier.includes('Tier 1') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30'}">${lead.tier.split(' ')[0]} ${lead.tier.split(' ')[1]}</span>
+            <h4 class="text-xs font-bold text-slate-700 uppercase font-mono tracking-wider">4-Touch Cadence</h4>
+            <div class="flex gap-1">
+              <button onclick="switchCadenceTouch(1)" id="btn-touch-1" class="touch-tab active">Day 0</button>
+              <button onclick="switchCadenceTouch(2)" id="btn-touch-2" class="touch-tab">Day 2</button>
+              <button onclick="switchCadenceTouch(3)" id="btn-touch-3" class="touch-tab">Day 5</button>
+              <button onclick="switchCadenceTouch(4)" id="btn-touch-4" class="touch-tab">Day 8</button>
+            </div>
           </div>
-          <div class="text-[11px] text-gray-300 font-medium truncate">${lead.organization}</div>
-          <div class="p-2 rounded-lg bg-white/5 border border-white/5 text-[10px] text-gray-300 font-mono line-clamp-2">
-            "${lead.triggerSignal}"
+          <textarea id="lead-modal-cadence-text" rows="5" oninput="updateWaLink()" class="w-full text-xs font-mono leading-relaxed"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-1 border-t border-slate-100 mt-2">
+          <div class="flex items-center gap-1.5 text-sm text-slate-500 font-mono">
+            <i data-lucide="phone" class="w-4 h-4"></i>
+            <span id="lead-modal-phone" class="font-semibold text-slate-700"></span>
           </div>
-          <div class="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] font-mono">
-            <span class="text-amber-400 font-bold">${lead.opportunityScore}/100 Score</span>
-            <span class="text-indigo-400">${lead.targetSaas}</span>
+          <div class="flex items-center gap-2">
+            <button onclick="copyCadenceMessage()" class="btn btn-secondary btn-sm">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+            <a id="lead-modal-wa-link" href="#" target="_blank" rel="noopener" class="btn btn-sm" style="background:#25d366;color:#fff;text-decoration:none;">
+              <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Open WhatsApp
+            </a>
+            <button id="btn-dispatch-wa" onclick="dispatchLeadWhatsApp()" class="btn btn-primary btn-sm">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i> Auto-Dispatch
+            </button>
           </div>
-        `;
-        targetCol.appendChild(card);
-      });
+        </div>
+      </div>
+    </div>
+  </div>
 
-      document.getElementById('col-count-captured').innerText = counts.CAPTURED;
-      document.getElementById('col-count-scored').innerText = counts.SCORED;
-      document.getElementById('col-count-dossier').innerText = counts.DOSSIER_READY;
-      document.getElementById('col-count-dispatched').innerText = counts.DISPATCHED;
+  <!-- ══════════════════════════════════════════════
+       PROSPECT DOSSIER MODAL
+  ══════════════════════════════════════════════ -->
+  <div id="prospect-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeProspectModal()">
+    <div class="modal-box">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+        <div>
+          <h2 id="pm-name" class="text-lg font-bold text-slate-900"></h2>
+          <p id="pm-address" class="text-xs text-slate-500 font-mono mt-0.5"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="pm-score-badge" class="text-sm font-black font-mono px-3 py-1 rounded-full"></span>
+          <button onclick="closeProspectModal()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+      <div class="p-5 space-y-4">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+            <span class="text-[10px] text-slate-400 font-mono uppercase">Rating</span>
+            <p id="pm-rating" class="text-lg font-black text-amber-500 mt-1"></p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+            <span class="text-[10px] text-slate-400 font-mono uppercase">Reviews</span>
+            <p id="pm-reviews" class="text-lg font-black text-slate-700 mt-1"></p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+            <span class="text-[10px] text-slate-400 font-mono uppercase">Opp. Score</span>
+            <p id="pm-score" class="text-lg font-black text-indigo-600 mt-1"></p>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-slate-700 font-mono uppercase tracking-wider mb-2">Digital Audit</h4>
+          <div id="pm-audit" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div class="card p-4 space-y-2 border-l-4 border-amber-400">
+          <h4 class="text-xs font-bold text-amber-600 uppercase font-mono tracking-wider">Grand Slam Offer</h4>
+          <p id="pm-offer" class="text-sm text-slate-700 font-semibold"></p>
+          <p id="pm-guarantee" class="text-xs text-emerald-600"></p>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-slate-700 uppercase font-mono tracking-wider">Outreach Cadence</h4>
+            <div class="flex gap-1">
+              <button onclick="switchProspectTouch(1)" id="pt-1" class="touch-tab active">Day 0</button>
+              <button onclick="switchProspectTouch(2)" id="pt-2" class="touch-tab">Day 2</button>
+              <button onclick="switchProspectTouch(3)" id="pt-3" class="touch-tab">Day 5</button>
+              <button onclick="switchProspectTouch(4)" id="pt-4" class="touch-tab">Day 8</button>
+            </div>
+          </div>
+          <textarea id="pm-cadence-text" rows="4" class="w-full text-xs font-mono leading-relaxed"></textarea>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+          <span id="pm-phone" class="text-sm font-mono text-slate-700"></span>
+          <div class="flex gap-2">
+            <button id="pm-btn-push" onclick="pushFromModal()" class="btn btn-cyan btn-sm">
+              <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i> Push to Pipeline
+            </button>
+            <a id="pm-wa-link" href="#" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;text-decoration:none;">
+              <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      // Empty states
-      Object.keys(cols).forEach(k => {
-        if (counts[k] === 0 && cols[k]) {
-          cols[k].innerHTML = `<div class="p-6 text-center text-[10px] text-gray-600 font-mono">No leads in this stage</div>`;
-        }
-      });
+  <!-- ══════════════════════════════════════════════
+       AGENT TASK MODAL
+  ══════════════════════════════════════════════ -->
+  <div id="agent-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeAgentModal()">
+    <div class="modal-box" style="max-width:600px">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span id="am-emoji" class="text-2xl"></span>
+          <div>
+            <h2 id="am-name" class="font-bold text-slate-900 text-base"></h2>
+            <p id="am-role" class="text-xs text-slate-500 mt-0.5"></p>
+          </div>
+        </div>
+        <button onclick="closeAgentModal()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div id="am-guidelines" class="space-y-2"></div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Brief / Task Prompt for this Agent</label>
+          <textarea id="am-prompt" rows="4" class="w-full text-sm" placeholder="e.g. Write a LinkedIn post about why Indian clinics lose ₹1.5L/month to no-shows..."></textarea>
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button onclick="closeAgentModal()" class="btn btn-secondary">Cancel</button>
+          <button id="am-btn-run" onclick="runAgentTask()" class="btn btn-primary">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            Run Agent
+          </button>
+        </div>
+        <div id="am-output" class="hidden">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Agent Output</label>
+          <textarea id="am-output-text" rows="10" class="w-full text-xs font-mono"></textarea>
+          <div class="flex gap-2 mt-2">
+            <button onclick="sendAgentOutputToStudio()" class="btn btn-primary btn-sm">
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Send to Studio
+            </button>
+            <button onclick="navigator.clipboard.writeText(document.getElementById('am-output-text').value)" class="btn btn-secondary btn-sm">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      lucide.createIcons();
-    }
+  <script>
+  'use strict';
 
-    // Pre-set Lead Fillers
-    function fillLeadDemo(preset) {
-      if (preset === 1) {
-        document.getElementById('lead-name').value = 'Dr. Rajesh Sharma';
-        document.getElementById('lead-org').value = 'Apex Multi-Specialty Clinic, Lucknow';
-        document.getElementById('lead-phone').value = '919876543210';
-        document.getElementById('lead-channel').value = 'linkedin';
-        document.getElementById('lead-saas').value = 'MediSuite AI';
-        document.getElementById('lead-signal').value = "Commented 'CLINIC' on LinkedIn Post regarding EHR burnout";
-      } else if (preset === 2) {
-        document.getElementById('lead-name').value = 'Vikram Malhotra';
-        document.getElementById('lead-org').value = 'Nexus Freight & Logistics, Mumbai';
-        document.getElementById('lead-phone').value = '919820012345';
-        document.getElementById('lead-channel').value = 'twitter';
-        document.getElementById('lead-saas').value = 'FlowInvoice AI';
-        document.getElementById('lead-signal').value = "Replied 'INVOICE' to Twitter Thread on vendor ledger mismatches";
-      } else if (preset === 3) {
-        document.getElementById('lead-name').value = 'Dr. Priya Nair';
-        document.getElementById('lead-org').value = 'City Dental Studio, Bangalore';
-        document.getElementById('lead-phone').value = '919845098765';
-        document.getElementById('lead-channel').value = 'whatsapp';
-        document.getElementById('lead-saas').value = 'MediSuite AI';
-        document.getElementById('lead-signal').value = "Incoming WhatsApp DM asking if bot can handle appointment reminders";
+  // ═══════════════════════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════════════════════
+  let currentLeads = [];
+  let selectedLead = null;
+  let activeTouch = 1;
+  let discoveredProspects = [];
+  let currentProspect = null;
+  let activeProspectTouch = 1;
+  let currentSaaSProfile = null;
+  let selectedAgentId = null;
+  let currentChannel = 'linkedin';
+  let generatedHooks = [];
+  let generatedContent = '';
+
+  const AGENTS = [
+    { id:'saas-analyst', name:'SaaS Product Analyst', emoji:'🧠', category:'Strategist & Analyst', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#F59E0B',
+      role:'Deconstructs any SaaS into ICP, Grand Slam Offer, and content pillars using the Hormozi Value Equation.',
+      guidelines:['Define the exact decision-maker ICP.','Pinpoint their Friday-afternoon operational nightmare.','Construct a Grand Slam Offer prospects feel stupid saying no to.','Extract 4 strategic content pillars.'] },
+    { id:'outbound-strategist', name:'Outbound & Lead Gen Strategist', emoji:'🧲', category:'Strategist & Analyst', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#EC4899',
+      role:'Top-of-funnel architect designing 3-tier signal routing and multi-touch cadences.',
+      guidelines:['Classify signals into Tier 1/2/3.','Design high-converting risk-reversal guarantees.','Sequence multi-touch outreach across LinkedIn, Email, and WhatsApp.'] },
+    { id:'linkedin-creator', name:'LinkedIn Content Creator', emoji:'💼', category:'Copywriter & Creator', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#0A66C2',
+      role:'Authority copywriter crafting scroll-stopping LinkedIn posts with 3-Hook Variants.',
+      guidelines:['Every post includes 3 hook options: Curiosity Gap, Contrarian Claim, Specific Metric.','Line 1 strictly <10 words, Line 2 blank.','No links in post body (only 1st comment).','Golden Hour CTA.'] },
+    { id:'carousel-engine', name:'Carousel Growth Engine', emoji:'🎠', category:'Copywriter & Creator', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#10B981',
+      role:'Visual storyteller generating 6-Slide Narrative Arc carousels.',
+      guidelines:['6-Slide Narrative Arc: Hook→Bottleneck→Agitation→Breakthrough→3 Levers→CTA.','Slide copy ultra-lean (<25 words per slide).','Safe-zone margin rules: zero text in bottom 20%.'] },
+    { id:'twitter-engager', name:'Twitter/X Viral Engager', emoji:'🐦', category:'Copywriter & Creator', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#1DA1F2',
+      role:'Fast-paced thread architect turning complex insights into 5-tweet viral breakdowns.',
+      guidelines:['Tweet 1 hook under 260 characters.','Tweets 2-4: 1 insight per tweet, under 270 chars.','Tweet 5: Core takeaway + retweet request.'] },
+    { id:'omni-repurposer', name:'Omni-Channel Repurposer', emoji:'📡', category:'Copywriter & Creator', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#8B5CF6',
+      role:'Takes 1 topic and produces a synchronized 4-asset marketing package.',
+      guidelines:['Format each asset natively for its platform.','Synchronize message DNA without repetition.','Bundle into clean 1-click export.'] },
+    { id:'master-polisher', name:'Agency Master Polisher', emoji:'💎', category:'Publishing & Operations', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#6366F1',
+      role:'Anti-AI fluff purifier, line break validator, and unicode bullet formatter.',
+      guidelines:['Purge all AI buzzwords ("delve","tapestry","game-changer").','Convert asterisks to unicode bullets (•).','Preserve all factual numbers.'] },
+    { id:'buffer-dispatcher', name:'Buffer Social Dispatcher', emoji:'🚀', category:'Publishing & Operations', model:'groq/llama-3.3-70b-versatile', status:'ACTIVE', color:'#14B8A6',
+      role:'Validates Boss Approval, formats for Buffer GraphQL API, dispatches to social queues.',
+      guidelines:['Strict Boss Approval verification before publishing.','Routes dynamically to OnyxIQ or personal Buffer profiles.','Enforces character limits per channel.'] },
+  ];
+
+  const SEED_PROFILES = {
+    medisuite: {
+      name:'MediSuite AI', category:'Healthcare Clinical OS', tagline:'The AI Clinical Operating System & WhatsApp Patient Bridge',
+      targetAudience:{ title:'Private Clinic Owners, Independent Doctors, Polyclinic OPD Managers', frustration:'Spending 2.5 hours every evening manually typing EHR notes and managing patient follow-ups.', costOfInaction:'Losing 20–35% of booked slots to no-shows — up to ₹1.5L/month in unrecoverable revenue.' },
+      coreProblem:'Sluggish EHR typing and fragmented patient communication drain clinical hours.',
+      statusQuoFailure:'Traditional desktop EHRs turn doctors into typists.',
+      breakthroughSolution:'Ambient voice-to-prescription in 30 seconds + autonomous WhatsApp clinic assistant that automates bookings with zero app downloads.',
+      keyFeatures:['30-Second Ambient Voice Rx','Autonomous WhatsApp Clinic Assistant','Unified Patient Timeline','Zero-App Patient Experience'],
+      grandSlamOffer:{ dreamOutcome:'Reclaim 2.5 hours/day and recover ₹1.5L/mo in lost revenue.', perceivedLikelihood:'15-min plug-and-play onboarding, zero staff learning curve.', timeDelay:'First voice prescription in 15 minutes of signup.', effortAndSacrifice:'Runs on existing smartphone, works over WhatsApp API.', guarantee:'14-Day Zero-Risk Pilot — no-shows don\'t drop 50%, pay nothing.', cta:'Book a 15-min live demo or reply "CLINIC" for 14-day trial.' },
+      contentPillars:{ contrarianTake:'Typing prescriptions during consultations destroys patient trust and costs clinics ₹1.5L/month.', bottleneckTeardown:'Why patient portal apps are dead: 90% refuse to install them, but 100% check WhatsApp within 5 mins.', framework3Levers:['Shift from screen typing to ambient voice capture.','Automate bilingual WhatsApp reminders at 2h and 24h.','Unify patient communication into a compliant clinic channel.'], leadMagnetIdea:'The Clinic No-Show Calculator & 5-Step WhatsApp Recall Script.' },
+    },
+    flowinvoice: {
+      name:'FlowInvoice', category:'FinTech / Cash Flow Automation', tagline:'Automated Invoice Collection & WhatsApp Payment Reminders',
+      targetAudience:{ title:'Digital Agency Owners, Consultancies, and High-Ticket Freelancers', frustration:'Spending 15+ hours/month manually chasing overdue invoices.', costOfInaction:'Average agency bleeds ₹2–5L in late payments, restricting payroll.' },
+      coreProblem:'Manual invoice follow-ups are uncomfortable and consistently delayed.',
+      statusQuoFailure:'Generic accounting emails go straight to spam.',
+      breakthroughSolution:'Smart WhatsApp-first payment concierge with automated 1-click UPI/card payment links.',
+      keyFeatures:['1-Click WhatsApp Payment Links','3-Tier Polite Automated Escalation','Real-Time Cash Flow Forecast'],
+      grandSlamOffer:{ dreamOutcome:'Get 100% of invoices paid on time without sending a single awkward text.', perceivedLikelihood:'Integrates with QuickBooks, Zoho, Tally in 5 minutes.', timeDelay:'Collect on first overdue invoice within 48 hours.', effortAndSacrifice:'Completely hands-off; runs in background.', guarantee:'14-Day Free Pilot: collect on 1 overdue invoice in 7 days or pay nothing.', cta:'Start 14-day zero-risk trial or reply "INVOICE" for cash flow audit.' },
+      contentPillars:{ contrarianTake:'Chasing clients over email is the #1 reason agencies suffer cash flow crunches.', bottleneckTeardown:'Why Net-30 payment terms are killing early-stage service agencies.', framework3Levers:['Deliver invoices where clients actually chat: WhatsApp.','Remove friction with instant 1-tap UPI buttons.','Automate escalation before invoices become overdue.'], leadMagnetIdea:'The Agency Accounts Receivable Recovery Calculator & 3 Polite Payment Scripts.' },
+    },
+    talentradar: {
+      name:'TalentRadar AI', category:'Developer Tools & Hiring Intelligence', tagline:'Technical Candidate Screening on Real GitHub Code',
+      targetAudience:{ title:'VPs of Engineering, CTOs, and Technical Talent Leads at Scaling Startups', frustration:'Wasting 40+ engineering hours per hire on candidates who memorized LeetCode but can\'t write clean production code.', costOfInaction:'Spending ₹3L+ in wasted interviewer time and risking a catastrophic bad engineering hire.' },
+      coreProblem:'LeetCode quizzes and resume buzzwords fail to test real production skills.',
+      statusQuoFailure:'Standard coding platforms test inverted binary trees, not git diffs or race conditions.',
+      breakthroughSolution:'AI evaluation engine that analyzes actual GitHub commits, PRs, and sandbox architecture challenges in real time.',
+      keyFeatures:['Real-World PR Challenge','AI Code Quality Radar','Automated Technical Dossier in 5 minutes'],
+      grandSlamOffer:{ dreamOutcome:'Hire top 5% engineers in half the time without pulling engineers from shipping.', perceivedLikelihood:'Benchmarks validated by senior staff engineers.', timeDelay:'Review first candidate report within 24 hours.', effortAndSacrifice:'Assessment link sent automatically on application.', guarantee:'If no accepted hire in first 3 reviews, pilot is free.', cta:'Request 10-min technical demo or reply "RADAR" for benchmark report.' },
+      contentPillars:{ contrarianTake:'Testing LeetCode trivia filters for test-takers, not the engineers who will scale your backend.', bottleneckTeardown:'The hidden $20K cost of pulling senior engineers into 5 rounds of basic screening.', framework3Levers:['Replace live coding with async PR reviews.','Test debugging ability over algorithmic recall.','Standardize scoring on maintainability and test coverage.'], leadMagnetIdea:'The Production Engineering Hiring Rubric & 5 PR Interview Scenarios.' },
+    },
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // TAB SWITCHING
+  // ═══════════════════════════════════════════════════════════════════════
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    const nav = document.getElementById('nav-' + tab);
+    if (nav) nav.classList.add('active');
+    lucide.createIcons();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ECOSYSTEM STATUS
+  // ═══════════════════════════════════════════════════════════════════════
+  async function loadEcosystemStatus() {
+    try {
+      const res = await fetch('/api/ecosystem/status');
+      const data = await res.json();
+      if (!data.success) return;
+      const nodes = data.ecosystem.nodes;
+
+      const llmOnline = nodes.llm_gateway.status === 'ONLINE';
+      document.getElementById('pill-llm').className = `flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full whitespace-nowrap ${llmOnline ? 'badge-green' : 'badge-rose'}`;
+      document.getElementById('pill-llm').querySelector('span').className = llmOnline ? 'dot-green' : 'dot-red';
+      document.getElementById('pill-llm-txt').textContent = `OnyxIQ LLMs :3200 (${nodes.llm_gateway.modelsCount || 472} models)`;
+
+      const waOnline = nodes.whatsapp_bridge.status === 'ONLINE';
+      document.getElementById('pill-wa').className = `flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full whitespace-nowrap ${waOnline ? 'badge-green' : 'badge-amber'}`;
+      document.getElementById('pill-wa').querySelector('span').className = waOnline ? 'dot-green' : 'dot-amber';
+      document.getElementById('pill-wa-txt').textContent = `WhatsApp (${nodes.whatsapp_bridge.botPhone || '+919278009883'})`;
+
+      const msOnline = nodes.medisuite_core.status === 'ONLINE';
+      document.getElementById('pill-ms').className = `flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full whitespace-nowrap ${msOnline ? 'badge-green' : 'badge-gray'}`;
+      document.getElementById('pill-ms').querySelector('span').className = msOnline ? 'dot-green' : 'dot-amber';
+      document.getElementById('pill-ms-txt').textContent = `MediSuite :3000 ${msOnline ? '• Online' : '• Standby'}`;
+    } catch(e) {}
+  }
+
+  function refreshAll() { loadEcosystemStatus(); loadLeads(); loadQueue(); lucide.createIcons(); }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // LEAD PIPELINE (KANBAN)
+  // ═══════════════════════════════════════════════════════════════════════
+  async function loadLeads() {
+    try {
+      const res = await fetch('/api/leads');
+      const data = await res.json();
+      if (data.success && data.leads) {
+        currentLeads = data.leads;
+        renderKanban(currentLeads);
+        // stats
+        const t1 = currentLeads.filter(l => l.tier.includes('Tier 1')).length;
+        const disp = currentLeads.filter(l => l.status === 'DISPATCHED' || l.status === 'CONVERTED').length;
+        document.getElementById('stat-total').textContent = currentLeads.length;
+        document.getElementById('stat-t1').textContent = t1;
+        document.getElementById('stat-disp').textContent = disp;
+        document.getElementById('nav-leads-count').textContent = currentLeads.length;
+        document.getElementById('leads-total-badge').textContent = `${currentLeads.length} leads`;
       }
-    }
+    } catch(e) { console.error(e); }
+  }
 
-    // Ingest Lead Form Submission
-    async function captureLead(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-ingest-lead');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Running Agency-Agents Cognition...`;
-      btn.disabled = true;
-      lucide.createIcons();
+  function renderKanban(leads) {
+    const cols = {
+      CAPTURED: document.getElementById('col-captured'),
+      SCORED: document.getElementById('col-scored'),
+      DOSSIER_READY: document.getElementById('col-dossier'),
+      DISPATCHED: document.getElementById('col-dispatched'),
+    };
+    const counts = { CAPTURED:0, SCORED:0, DOSSIER_READY:0, DISPATCHED:0 };
+    Object.values(cols).forEach(c => { if(c) c.innerHTML = ''; });
 
-      try {
-        const payload = {
-          name: document.getElementById('lead-name').value,
-          organization: document.getElementById('lead-org').value,
-          phone: document.getElementById('lead-phone').value,
-          channel: document.getElementById('lead-channel').value,
-          targetSaas: document.getElementById('lead-saas').value,
-          triggerSignal: document.getElementById('lead-signal').value,
-        };
+    leads.forEach(lead => {
+      const status = (lead.status === 'CONVERTED') ? 'DISPATCHED' : lead.status;
+      if (counts[status] !== undefined) counts[status]++;
+      const col = cols[status];
+      if (!col) return;
 
-        const res = await fetch('/api/leads/capture', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (data.success && data.lead) {
-          currentLeads.unshift(data.lead);
-          renderKanban(currentLeads);
-          openLeadModal(data.lead.id);
-          document.getElementById('lead-capture-form').reset();
-        } else {
-          alert('Ingestion error: ' + (data.error || 'Failed to ingest lead'));
-        }
-      } catch (err) {
-        alert('Failed to ingest lead: ' + err.message);
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        lucide.createIcons();
-      }
-    }
-
-    // Modal Operations
-    function openLeadModal(leadId) {
-      const lead = currentLeads.find(l => l.id === leadId);
-      if (!lead) return;
-      selectedLead = lead;
-      activeTouch = 1;
-
-      document.getElementById('lead-modal-name').innerText = lead.name;
-      document.getElementById('lead-modal-org').innerText = `${lead.organization} • ${lead.targetSaas} (${lead.channel.toUpperCase()})`;
-      document.getElementById('lead-modal-tier').innerText = lead.tier;
-      document.getElementById('lead-modal-score').innerText = `${lead.opportunityScore}/100`;
-      document.getElementById('lead-modal-signal').innerText = `"${lead.triggerSignal}"`;
-      document.getElementById('lead-modal-sla').innerText = lead.urgencyRouting;
-
-      // Grand Slam Offer
-      document.getElementById('lead-modal-dream').innerText = lead.grandSlamOffer.dreamOutcome;
-      document.getElementById('lead-modal-delay').innerText = lead.grandSlamOffer.timeDelay;
-      document.getElementById('lead-modal-effort').innerText = lead.grandSlamOffer.effortSacrifice;
-      document.getElementById('lead-modal-guarantee').innerText = lead.grandSlamOffer.guarantee;
-
-      // Cadence Text
-      switchCadenceTouch(1);
-
-      // Phone & Link
-      document.getElementById('lead-modal-phone').innerText = `+${lead.phone}`;
-      updateWaLink();
-
-      document.getElementById('lead-modal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function closeLeadModal() {
-      document.getElementById('lead-modal').classList.add('hidden');
-      selectedLead = null;
-    }
-
-    function switchCadenceTouch(touchNum) {
-      if (!selectedLead) return;
-      activeTouch = touchNum;
-
-      [1, 2, 3, 4].forEach(n => {
-        const btn = document.getElementById(`btn-touch-${n}`);
-        if (btn) {
-          if (n === touchNum) {
-            btn.className = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold';
-          } else {
-            btn.className = 'px-2.5 py-1 rounded bg-white/5 text-gray-400 hover:text-white';
-          }
-        }
-      });
-
-      const field = document.getElementById('lead-modal-cadence-text');
-      if (touchNum === 1) field.value = selectedLead.cadence.touch1_patternInterrupt;
-      if (touchNum === 2) field.value = selectedLead.cadence.touch2_proofOfMechanism;
-      if (touchNum === 3) field.value = selectedLead.cadence.touch3_interactiveDemo;
-      if (touchNum === 4) field.value = selectedLead.cadence.touch4_softBreakup;
-
-      updateWaLink();
-    }
-
-    function updateWaLink() {
-      if (!selectedLead) return;
-      const text = document.getElementById('lead-modal-cadence-text').value;
-      const cleanPhone = selectedLead.phone.replace(/[^0-9]/g, '');
-      const link = document.getElementById('lead-modal-wa-link');
-      if (link) {
-        link.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
-      }
-    }
-
-    function copyCadenceMessage() {
-      const text = document.getElementById('lead-modal-cadence-text').value;
-      navigator.clipboard.writeText(text);
-      alert('Outreach cadence message copied to clipboard!');
-    }
-
-    // Dispatch WhatsApp Outreach Message via Baileys Bridge
-    async function dispatchLeadWhatsApp() {
-      if (!selectedLead) return;
-      const btn = document.getElementById('btn-dispatch-wa');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Dispatching via Baileys...`;
-      btn.disabled = true;
-      lucide.createIcons();
-
-      const textToSend = document.getElementById('lead-modal-cadence-text').value;
-
-      try {
-        const res = await fetch('/api/leads/dispatch-whatsapp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            leadId: selectedLead.id,
-            customMessage: textToSend
-          })
-        });
-
-        const data = await res.json();
-        if (data.success) {
-          selectedLead.status = 'DISPATCHED';
-          renderKanban(currentLeads);
-          alert(data.message || 'WhatsApp message dispatched successfully!');
-        } else {
-          alert('Dispatch failed: ' + (data.error || 'Check Baileys bridge status'));
-        }
-      } catch (err) {
-        alert('Dispatch error: ' + err.message);
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        lucide.createIcons();
-      }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════════
-    // OUTBOUND LEAD PROSPECTOR (GOOGLE PLACES API & AUDIT)
-    // ═════════════════════════════════════════════════════════════════════════
-    let discoveredProspects = [];
-
-    function fillProspectorDemo(niche, location, saas) {
-      document.getElementById('prospect-niche').value = niche;
-      document.getElementById('prospect-location').value = location;
-      document.getElementById('prospect-saas').value = saas;
-    }
-
-    async function runProspectorSearch(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-run-prospector');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Searching Google Places & Auditing Tech...`;
-      btn.disabled = true;
-      lucide.createIcons();
-
-      const container = document.getElementById('prospector-results-grid');
-      container.innerHTML = `
-        <div class="col-span-full glass-card p-12 text-center text-xs text-gray-400 font-mono space-y-3">
-          <i data-lucide="loader-2" class="w-8 h-8 mx-auto text-cyan-400 animate-spin"></i>
-          <div>Connecting to Google Places API (New v1), auditing web stacks, and scoring opportunities...</div>
+      const isTier1 = lead.tier && lead.tier.includes('Tier 1');
+      const scoreColor = lead.opportunityScore >= 80 ? '#16a34a' : lead.opportunityScore >= 60 ? '#d97706' : '#dc2626';
+      const card = document.createElement('div');
+      card.className = 'kanban-card';
+      card.onclick = () => openLeadModal(lead.id);
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2 mb-1.5">
+          <div>
+            <div class="text-xs font-bold text-slate-800 leading-tight">${lead.name}</div>
+            <div class="text-[11px] text-slate-500 truncate max-w-[140px]">${lead.organization}</div>
+          </div>
+          <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style="background:${scoreColor}1a;color:${scoreColor};border:1px solid ${scoreColor}40">${lead.opportunityScore}/100</span>
+        </div>
+        <div class="text-[10px] text-slate-500 leading-snug line-clamp-2 bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100 font-mono mb-1.5">"${lead.triggerSignal}"</div>
+        <div class="flex items-center justify-between text-[10px] font-mono">
+          <span class="${isTier1 ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${lead.tier ? lead.tier.split(' ').slice(0,2).join(' ') : '—'}</span>
+          <span class="text-indigo-500">${lead.targetSaas || '—'}</span>
         </div>
       `;
-      lucide.createIcons();
+      col.appendChild(card);
+    });
 
-      try {
-        const payload = {
-          niche: document.getElementById('prospect-niche').value,
-          location: document.getElementById('prospect-location').value,
-          targetSaas: document.getElementById('prospect-saas').value,
-          limit: document.getElementById('prospect-limit').value,
-          lang: 'en'
-        };
+    document.getElementById('col-count-captured').textContent = counts.CAPTURED;
+    document.getElementById('col-count-scored').textContent = counts.SCORED;
+    document.getElementById('col-count-dossier').textContent = counts.DOSSIER_READY;
+    document.getElementById('col-count-dispatched').textContent = counts.DISPATCHED;
 
-        const res = await fetch('/api/leads/prospect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (data.success && data.leads) {
-          discoveredProspects = data.leads;
-          renderProspectorResults(discoveredProspects);
-        } else {
-          container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-rose-400 font-mono">Search failed: ${data.error || 'Check Google Places API key'}</div>`;
-        }
-      } catch (err) {
-        container.innerHTML = `<div class="col-span-full p-8 text-center text-xs text-rose-400 font-mono">Network error: ${err.message}</div>`;
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        lucide.createIcons();
+    Object.entries(counts).forEach(([k, v]) => {
+      if (v === 0) {
+        const el = cols[k];
+        if (el) el.innerHTML = `<div class="text-center py-8 text-[11px] text-slate-300 font-mono">Empty</div>`;
       }
+    });
+    lucide.createIcons();
+  }
+
+  function fillLeadDemo(preset) {
+    const demos = [
+      null,
+      { name:'Dr. Rajesh Sharma', org:'Apex Multi-Specialty Clinic, Lucknow', phone:'919876543210', channel:'linkedin', saas:'MediSuite AI', signal:"Commented 'CLINIC' on LinkedIn Post about EHR burnout" },
+      { name:'Vikram Malhotra', org:'Nexus Freight & Logistics, Mumbai', phone:'919820012345', channel:'twitter', saas:'FlowInvoice AI', signal:"Replied 'INVOICE' to Twitter Thread on vendor reconciliation" },
+      { name:'Dr. Priya Nair', org:'City Dental Studio, Bangalore', phone:'919845098765', channel:'whatsapp', saas:'MediSuite AI', signal:"WhatsApp DM asking if bot handles Kannada appointment reminders" },
+    ];
+    const d = demos[preset]; if (!d) return;
+    document.getElementById('lead-name').value = d.name;
+    document.getElementById('lead-org').value = d.org;
+    document.getElementById('lead-phone').value = d.phone;
+    document.getElementById('lead-channel').value = d.channel;
+    document.getElementById('lead-saas').value = d.saas;
+    document.getElementById('lead-signal').value = d.signal;
+  }
+
+  async function captureLead(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-ingest-lead');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Scoring…`; btn.disabled = true; lucide.createIcons();
+    try {
+      const payload = { name:document.getElementById('lead-name').value, organization:document.getElementById('lead-org').value, phone:document.getElementById('lead-phone').value, channel:document.getElementById('lead-channel').value, targetSaas:document.getElementById('lead-saas').value, triggerSignal:document.getElementById('lead-signal').value };
+      const res = await fetch('/api/leads/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success && data.lead) {
+        currentLeads.unshift(data.lead);
+        renderKanban(currentLeads);
+        openLeadModal(data.lead.id);
+        document.getElementById('lead-capture-form').reset();
+      } else { alert('Error: ' + (data.error || 'Failed')); }
+    } catch(err) { alert('Error: ' + err.message); }
+    finally { btn.innerHTML = orig; btn.disabled = false; lucide.createIcons(); }
+  }
+
+  function openLeadModal(leadId) {
+    const lead = currentLeads.find(l => l.id === leadId); if (!lead) return;
+    selectedLead = lead; activeTouch = 1;
+    document.getElementById('lead-modal-name').textContent = lead.name;
+    document.getElementById('lead-modal-org').textContent = `${lead.organization} • ${lead.targetSaas} (${(lead.channel||'').toUpperCase()})`;
+    const tierBadge = document.getElementById('lead-modal-tier');
+    tierBadge.textContent = lead.tier;
+    tierBadge.className = `text-[11px] font-mono px-2.5 py-1 rounded-full font-bold ${lead.tier&&lead.tier.includes('Tier 1') ? 'badge-green' : 'badge-blue'}`;
+    document.getElementById('lead-modal-score').textContent = `${lead.opportunityScore}/100`;
+    document.getElementById('lead-modal-signal').textContent = `"${lead.triggerSignal}"`;
+    document.getElementById('lead-modal-sla').textContent = lead.urgencyRouting;
+    document.getElementById('lead-modal-dream').textContent = lead.grandSlamOffer?.dreamOutcome || '';
+    document.getElementById('lead-modal-delay').textContent = lead.grandSlamOffer?.timeDelay || '';
+    document.getElementById('lead-modal-effort').textContent = lead.grandSlamOffer?.effortSacrifice || '';
+    document.getElementById('lead-modal-guarantee').textContent = lead.grandSlamOffer?.guarantee || '';
+    switchCadenceTouch(1);
+    document.getElementById('lead-modal-phone').textContent = `+${lead.phone}`;
+    updateWaLink();
+    document.getElementById('lead-modal').classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function closeLeadModal() { document.getElementById('lead-modal').classList.add('hidden'); selectedLead = null; }
+
+  function switchCadenceTouch(n) {
+    if (!selectedLead) return;
+    activeTouch = n;
+    [1,2,3,4].forEach(i => { const b = document.getElementById(`btn-touch-${i}`); if(b) b.className = i===n ? 'touch-tab active' : 'touch-tab'; });
+    const field = document.getElementById('lead-modal-cadence-text');
+    const map = { 1:'touch1_patternInterrupt', 2:'touch2_proofOfMechanism', 3:'touch3_interactiveDemo', 4:'touch4_softBreakup' };
+    field.value = selectedLead.cadence?.[map[n]] || '';
+    updateWaLink();
+  }
+
+  function updateWaLink() {
+    if (!selectedLead) return;
+    const text = document.getElementById('lead-modal-cadence-text').value;
+    const cleanPhone = selectedLead.phone.replace(/[^0-9]/g,'');
+    const link = document.getElementById('lead-modal-wa-link');
+    if (link) link.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+  }
+
+  function copyCadenceMessage() {
+    navigator.clipboard.writeText(document.getElementById('lead-modal-cadence-text').value);
+    const btn = event.currentTarget; btn.textContent = '✓ Copied!'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="w-3.5 h-3.5"></i>'; lucide.createIcons(); }, 1500);
+  }
+
+  async function dispatchLeadWhatsApp() {
+    if (!selectedLead) return;
+    const btn = document.getElementById('btn-dispatch-wa');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Dispatching…`; btn.disabled = true; lucide.createIcons();
+    const textToSend = document.getElementById('lead-modal-cadence-text').value;
+    try {
+      const res = await fetch('/api/leads/dispatch-whatsapp', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ leadId:selectedLead.id, customMessage:textToSend }) });
+      const data = await res.json();
+      if (data.success) {
+        selectedLead.status = 'DISPATCHED';
+        renderKanban(currentLeads);
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 right-5 z-50 badge-green px-4 py-3 rounded-xl font-semibold text-sm shadow-lg';
+        toast.textContent = data.dispatchedViaBridge ? '✅ Message dispatched via WhatsApp Bot!' : '📋 Lead marked DISPATCHED. Use WhatsApp link to send.';
+        document.body.appendChild(toast); setTimeout(() => toast.remove(), 4000);
+      } else { alert('Dispatch failed: ' + (data.error || 'Unknown error')); }
+    } catch(err) { alert('Error: ' + err.message); }
+    finally { btn.innerHTML = orig; btn.disabled = false; lucide.createIcons(); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // OUTBOUND PROSPECTOR
+  // ═══════════════════════════════════════════════════════════════════════
+  function fillAndSearch(niche, location, saas) {
+    document.getElementById('p-niche').value = niche;
+    document.getElementById('p-location').value = location;
+    document.getElementById('p-saas').value = saas;
+    document.getElementById('btn-search').click();
+  }
+
+  async function runProspectorSearch(e) {
+    if (e) e.preventDefault();
+    const btn = document.getElementById('btn-search');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Searching…`; btn.disabled = true; lucide.createIcons();
+    const grid = document.getElementById('p-results');
+    grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400 text-sm"><i data-lucide="loader-2" class="w-10 h-10 mx-auto mb-3 animate-spin text-indigo-400"></i><p>Querying Google Places API & running digital audit…</p></div>`;
+    lucide.createIcons();
+    try {
+      const payload = { niche:document.getElementById('p-niche').value||'Dental Clinics', location:document.getElementById('p-location').value||'Lucknow', targetSaas:document.getElementById('p-saas').value||'MediSuite AI', limit:document.getElementById('p-limit').value||10 };
+      const res = await fetch('/api/leads/prospect', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success && data.leads) {
+        discoveredProspects = data.leads;
+        renderProspectorResults(data.leads, data.query);
+      } else {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-rose-500 text-sm font-mono">Error: ${data.error||'Google Places API failed. Check key.'}</div>`;
+      }
+    } catch(err) {
+      grid.innerHTML = `<div class="col-span-full text-center py-12 text-rose-500 text-sm font-mono">Network error: ${err.message}</div>`;
     }
+    finally { btn.innerHTML = orig; btn.disabled = false; lucide.createIcons(); }
+  }
 
-    function renderProspectorResults(leads) {
-      const container = document.getElementById('prospector-results-grid');
-      document.getElementById('prospector-count-label').innerText = `Found ${leads.length} Verified Businesses`;
-
-      if (leads.length === 0) {
-        container.innerHTML = `<div class="col-span-full glass-card p-12 text-center text-xs text-gray-500 font-mono">No matching businesses found in this area. Try adjusting your niche or city.</div>`;
-        return;
-      }
-
-      container.innerHTML = leads.map(lead => {
-        const isTier1 = lead.tier.includes('Tier 1');
-        return `
-          <div class="glass-card p-5 rounded-2xl border border-brand-border hover:border-cyan-500/50 transition space-y-3 flex flex-col justify-between">
-            <div class="space-y-2.5">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <h4 class="text-sm font-bold text-white leading-tight">${lead.name}</h4>
-                  <p class="text-[11px] text-gray-400 mt-0.5 line-clamp-1">${lead.address}</p>
-                </div>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${isTier1 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30'} font-bold whitespace-nowrap">
-                  ${lead.opportunityScore}/100
-                </span>
-              </div>
-
-              <!-- Rating, Reviews & Map -->
-              <div class="flex items-center gap-3 text-xs font-mono">
-                <span class="flex items-center gap-1 text-amber-400 font-bold">
-                  ★ ${lead.rating || 'N/A'}
-                  <span class="text-gray-400 font-normal">(${lead.userRatingCount} reviews)</span>
-                </span>
-                ${lead.googleMapsUri ? `
-                  <a href="${lead.googleMapsUri}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 text-[11px]">
-                    <i data-lucide="map-pin" class="w-3 h-3"></i>
-                    <span>Map</span>
-                  </a>
-                ` : ''}
-              </div>
-
-              <!-- Digital Audit Badges -->
-              <div class="grid grid-cols-2 gap-1.5 p-2.5 bg-black/40 rounded-xl border border-white/5 text-[10px] font-mono">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full ${lead.hasWebsite ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
-                  <span class="${lead.hasWebsite ? 'text-gray-300' : 'text-rose-400 font-bold'}">${lead.hasWebsite ? 'Website Present' : 'NO WEBSITE (+40)'}</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full ${lead.scoreBreakdown?.noSSL === 0 ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
-                  <span class="text-gray-300">${lead.scoreBreakdown?.noSSL === 0 ? 'SSL Secure' : 'No SSL / Old'}</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full ${lead.scoreBreakdown?.missingBooking === 0 ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
-                  <span class="text-gray-300">${lead.scoreBreakdown?.missingBooking === 0 ? 'Online Booking' : 'No Booking (+20)'}</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full ${lead.scoreBreakdown?.noAIChat === 0 ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
-                  <span class="text-gray-300">${lead.scoreBreakdown?.noAIChat === 0 ? 'AI WhatsApp' : 'No AI Bot (+10)'}</span>
-                </div>
-              </div>
-
-              <!-- Phone & Grand Slam Highlight -->
-              <div class="text-[11px] text-gray-300 flex items-center justify-between font-mono">
-                <span class="text-gray-400">Phone:</span>
-                <span class="text-white font-semibold">${lead.rawPhone || 'Not listed'}</span>
-              </div>
+  function renderProspectorResults(leads, query) {
+    const grid = document.getElementById('p-results');
+    document.getElementById('p-count-label').textContent = `${leads.length} businesses found for "${query}"`;
+    if (!leads.length) {
+      grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-sm">No results. Try a different niche or city.</div>`;
+      return;
+    }
+    grid.innerHTML = leads.map(lead => {
+      const isTier1 = lead.tier && lead.tier.includes('Tier 1');
+      const scoreColor = lead.opportunityScore >= 80 ? '#16a34a' : lead.opportunityScore >= 60 ? '#d97706' : '#2563eb';
+      const bgScore = lead.opportunityScore >= 80 ? '#dcfce7' : lead.opportunityScore >= 60 ? '#fef3c7' : '#dbeafe';
+      return `
+        <div class="prospect-card card-hover">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-slate-800 text-sm leading-tight">${lead.name}</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5 truncate">${lead.address || ''}</p>
             </div>
+            <div class="score-ring flex-shrink-0" style="background:${bgScore};color:${scoreColor};">${lead.opportunityScore}</div>
+          </div>
 
-            <!-- Card Bottom Actions -->
-            <div class="pt-3 border-t border-brand-border/60 flex items-center justify-between gap-2">
-              <button onclick="inspectProspect('${lead.id}')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[11px] font-semibold transition border border-white/10 flex items-center gap-1">
-                <i data-lucide="file-text" class="w-3 h-3"></i>
-                <span>Dossier</span>
-              </button>
-              <button onclick="pushLeadToPipeline('${lead.id}')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-[11px] font-semibold transition flex items-center gap-1 shadow">
-                <i data-lucide="arrow-right-circle" class="w-3 h-3"></i>
-                <span>Push to Pipeline</span>
-              </button>
+          <div class="flex items-center gap-3 text-xs font-mono">
+            ${lead.rating ? `<span class="text-amber-500 font-bold">★ ${lead.rating}</span><span class="text-slate-400">(${lead.userRatingCount} reviews)</span>` : '<span class="text-slate-300 italic text-[11px]">No reviews yet</span>'}
+            ${lead.googleMapsUri ? `<a href="${lead.googleMapsUri}" target="_blank" class="text-indigo-500 hover:text-indigo-700 text-[11px] ml-auto">📍 Map</a>` : ''}
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-[11px] font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${lead.hasWebsite ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+              <span class="${lead.hasWebsite ? 'text-slate-600' : 'text-rose-600 font-bold'}">${lead.hasWebsite ? 'Website ✓' : 'NO WEBSITE (+40)'}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${lead.scoreBreakdown?.noSSL===0 ? 'bg-emerald-500' : 'bg-amber-400'}"></span>
+              <span class="text-slate-600">${lead.scoreBreakdown?.noSSL===0 ? 'SSL Secure ✓' : 'No SSL'}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${lead.scoreBreakdown?.missingBooking===0 ? 'bg-emerald-500' : 'bg-rose-400'}"></span>
+              <span class="text-slate-600">${lead.scoreBreakdown?.missingBooking===0 ? 'Online Booking ✓' : 'No Booking (+20)'}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${lead.scoreBreakdown?.noAIChat===0 ? 'bg-emerald-500' : 'bg-rose-400'}"></span>
+              <span class="text-slate-600">${lead.scoreBreakdown?.noAIChat===0 ? 'AI Bot ✓' : 'No AI Bot (+10)'}</span>
             </div>
           </div>
-        `;
-      }).join('');
-      lucide.createIcons();
-    }
 
-    function inspectProspect(leadId) {
-      const prospect = discoveredProspects.find(p => p.id === leadId);
-      if (!prospect) return;
+          <div class="flex items-center justify-between text-[11px] font-mono">
+            <span class="text-slate-400">📞 ${lead.rawPhone || 'Not listed'}</span>
+            <span class="font-bold ${isTier1 ? 'text-emerald-600' : 'text-amber-600'}">${lead.tier ? lead.tier.split(' ').slice(0,2).join(' ') : ''}</span>
+          </div>
 
-      // Add temporarily to currentLeads so openLeadModal can display it
-      if (!currentLeads.some(l => l.id === prospect.id)) {
-        currentLeads.push(prospect);
-      }
-      openLeadModal(prospect.id);
-    }
+          <div class="flex gap-2 pt-1 border-t border-slate-100">
+            <button onclick="inspectProspect('${lead.id}')" class="btn btn-secondary btn-sm flex-1 justify-center">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Dossier
+            </button>
+            <button onclick="pushLeadToPipeline('${lead.id}')" class="btn btn-cyan btn-sm flex-1 justify-center">
+              <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i> Push to Pipeline
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    lucide.createIcons();
+  }
 
-    async function pushLeadToPipeline(leadId) {
-      const prospect = discoveredProspects.find(p => p.id === leadId);
-      if (!prospect) return;
+  function inspectProspect(leadId) {
+    const p = discoveredProspects.find(x => x.id === leadId); if (!p) return;
+    currentProspect = p; activeProspectTouch = 1;
+    document.getElementById('pm-name').textContent = p.name;
+    document.getElementById('pm-address').textContent = p.address || '';
+    const isTier1 = p.tier && p.tier.includes('Tier 1');
+    const sb = document.getElementById('pm-score-badge');
+    sb.textContent = `${p.opportunityScore}/100`;
+    sb.className = `text-sm font-black font-mono px-3 py-1 rounded-full ${isTier1 ? 'badge-green' : 'badge-blue'}`;
+    document.getElementById('pm-rating').textContent = p.rating ? `★ ${p.rating}` : 'N/A';
+    document.getElementById('pm-reviews').textContent = p.userRatingCount || '0';
+    document.getElementById('pm-score').textContent = `${p.opportunityScore}/100`;
+    document.getElementById('pm-phone').textContent = `📞 ${p.rawPhone || 'Not listed'}`;
+    document.getElementById('pm-offer').textContent = p.grandSlamOffer?.dreamOutcome || '';
+    document.getElementById('pm-guarantee').textContent = p.grandSlamOffer?.guarantee || '';
 
-      try {
-        const res = await fetch('/api/leads/import-to-pipeline', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lead: prospect })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert(`Success: "${prospect.name}" has been pushed to the Closed-Loop Pipeline!`);
-          await loadLeads();
-          switchTab('leads');
-        } else {
-          alert('Failed to import: ' + (data.error || 'Unknown error'));
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    }
+    const audit = document.getElementById('pm-audit');
+    const flags = [
+      { label: p.hasWebsite ? 'Website Present ✓' : 'NO WEBSITE (+40)', ok: p.hasWebsite },
+      { label: p.scoreBreakdown?.noSSL===0 ? 'SSL Secure ✓' : 'No SSL Certificate', ok: p.scoreBreakdown?.noSSL===0 },
+      { label: p.scoreBreakdown?.missingBooking===0 ? 'Online Booking ✓' : 'No Online Booking (+20)', ok: p.scoreBreakdown?.missingBooking===0 },
+      { label: p.scoreBreakdown?.noAIChat===0 ? 'AI WhatsApp Bot ✓' : 'No AI Bot (+10)', ok: p.scoreBreakdown?.noAIChat===0 },
+    ];
+    audit.innerHTML = flags.map(f => `<div class="flex items-center gap-2 p-2.5 rounded-lg border ${f.ok ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'} text-xs font-mono font-semibold"><span class="w-2 h-2 rounded-full ${f.ok ? 'bg-emerald-500' : 'bg-rose-500'}"></span>${f.label}</div>`).join('');
+    switchProspectTouch(1);
+    const waPhone = p.phone || '';
+    document.getElementById('pm-wa-link').href = `https://wa.me/${waPhone}?text=${encodeURIComponent(p.cadence?.touch1_patternInterrupt||'')}`;
+    document.getElementById('prospect-modal').classList.remove('hidden');
+    lucide.createIcons();
+  }
 
-    // Initial boot
-    document.addEventListener('DOMContentLoaded', () => {
-      loadRoster();
-      loadEcosystemStatus();
-      loadLeads();
-      lucide.createIcons();
+  function closeProspectModal() { document.getElementById('prospect-modal').classList.add('hidden'); currentProspect = null; }
+
+  function switchProspectTouch(n) {
+    if (!currentProspect) return;
+    activeProspectTouch = n;
+    [1,2,3,4].forEach(i => { const b = document.getElementById(`pt-${i}`); if(b) b.className = i===n ? 'touch-tab active' : 'touch-tab'; });
+    const map = { 1:'touch1_patternInterrupt', 2:'touch2_proofOfMechanism', 3:'touch3_interactiveDemo', 4:'touch4_softBreakup' };
+    document.getElementById('pm-cadence-text').value = currentProspect.cadence?.[map[n]] || '';
+  }
+
+  async function pushLeadToPipeline(leadId) {
+    const p = discoveredProspects.find(x => x.id === leadId); if (!p) return;
+    try {
+      const res = await fetch('/api/leads/import-to-pipeline', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ lead:p }) });
+      const data = await res.json();
+      if (data.success) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 right-5 z-50 badge-green px-4 py-3 rounded-xl font-semibold text-sm shadow-lg';
+        toast.textContent = `✅ "${p.name}" pushed to Pipeline!`;
+        document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+        await loadLeads();
+        switchTab('leads');
+      } else { alert('Import failed: ' + (data.error||'Unknown')); }
+    } catch(err) { alert(err.message); }
+  }
+
+  async function pushFromModal() {
+    if (!currentProspect) return;
+    await pushLeadToPipeline(currentProspect.id);
+    closeProspectModal();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // SAAS ANALYST
+  // ═══════════════════════════════════════════════════════════════════════
+  function loadSeed(key) {
+    const p = SEED_PROFILES[key]; if (!p) return;
+    document.getElementById('saas-name').value = p.name;
+    document.getElementById('saas-category').value = p.category;
+    document.getElementById('saas-target-audience').value = p.targetAudience.title;
+    document.getElementById('saas-description').value = p.breakthroughSolution;
+    runSaaSAnalysis();
+  }
+
+  async function runSaaSAnalysis() {
+    const btn = document.getElementById('btn-analyze-saas');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Analysing…`; btn.disabled = true; lucide.createIcons();
+    try {
+      const payload = { name:document.getElementById('saas-name').value, category:document.getElementById('saas-category').value, targetAudience:document.getElementById('saas-target-audience').value, description:document.getElementById('saas-description').value };
+      const res = await fetch('/api/analyse-saas', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success && data.profile) {
+        currentSaaSProfile = data.profile;
+        populateSaaSResults(data.profile);
+      } else { alert('Analysis failed: ' + (data.error||'Unknown')); }
+    } catch(err) { alert('Error: ' + err.message); }
+    finally { btn.innerHTML = orig; btn.disabled = false; lucide.createIcons(); }
+  }
+
+  function populateSaaSResults(p) {
+    document.getElementById('res-icp-title').textContent = p.targetAudience?.title || '';
+    document.getElementById('res-icp-frustration').textContent = p.targetAudience?.frustration || '';
+    document.getElementById('res-icp-inaction').textContent = p.targetAudience?.costOfInaction || '';
+    document.getElementById('res-solution-title').textContent = p.name || '';
+    document.getElementById('res-solution-text').textContent = p.breakthroughSolution || '';
+    document.getElementById('res-features-list').innerHTML = (p.keyFeatures||[]).map(f => `<li class="flex items-start gap-1.5 text-slate-600"><span class="text-indigo-400 mt-0.5">•</span>${f}</li>`).join('');
+    document.getElementById('res-offer-outcome').textContent = p.grandSlamOffer?.dreamOutcome || '';
+    document.getElementById('res-offer-guarantee').textContent = p.grandSlamOffer?.guarantee || '';
+    document.getElementById('res-offer-cta').textContent = p.grandSlamOffer?.cta || '';
+    document.getElementById('res-pillar-contrarian').textContent = p.contentPillars?.contrarianTake || '';
+    document.getElementById('res-pillar-bottleneck').textContent = p.contentPillars?.bottleneckTeardown || '';
+    document.getElementById('res-pillar-levers').innerHTML = (p.contentPillars?.framework3Levers||[]).map((l,i) => `<li class="flex items-start gap-1.5"><span class="text-indigo-400 font-bold">${i+1}.</span><span>${l}</span></li>`).join('');
+    document.getElementById('res-pillar-magnet').textContent = p.contentPillars?.leadMagnetIdea || '';
+    document.getElementById('saas-analysis-results').classList.remove('hidden');
+    document.getElementById('saas-analysis-results').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function sendProfileToStudio() {
+    if (currentSaaSProfile) switchTab('studio');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // CONTENT STUDIO
+  // ═══════════════════════════════════════════════════════════════════════
+  function selectChannel(chan) {
+    currentChannel = chan;
+    document.querySelectorAll('.chan-btn').forEach(b => {
+      if (b.dataset.chan === chan) { b.className = 'chan-btn btn btn-primary btn-sm justify-center'; }
+      else { b.className = 'chan-btn btn btn-secondary btn-sm justify-center'; }
     });
+    const agents = { linkedin:{ icon:'💼', name:'LinkedIn Content Creator', desc:'3 Hook Variants, Line 1 <10 words, no links in body, 3-5 hashtags, Golden Hour CTA.' }, carousel:{ icon:'🎠', name:'Carousel Growth Engine', desc:'6-Slide Narrative Arc: Hook→Bottleneck→Agitation→Breakthrough→3 Levers→CTA.' }, twitter:{ icon:'🐦', name:'Twitter/X Viral Engager', desc:'5-tweet thread. Tweet 1 hook <260 chars. Each tweet a single insight.' }, repurpose:{ icon:'📡', name:'Omni-Channel Repurposer', desc:'One brief → LinkedIn post + Twitter thread + 6-Slide carousel + newsletter.' } };
+    const a = agents[chan]||agents.linkedin;
+    document.getElementById('active-agent-icon').textContent = a.icon;
+    document.getElementById('active-agent-name').textContent = a.name;
+    document.getElementById('active-agent-desc').textContent = a.desc;
+    document.getElementById('hook-switcher-bar').classList.toggle('hidden', chan !== 'linkedin');
+  }
+
+  function onStudioSaaSChange() {
+    const val = document.getElementById('studio-saas-select').value;
+    if (val !== 'current' && SEED_PROFILES[val]) currentSaaSProfile = SEED_PROFILES[val];
+  }
+
+  async function triggerContentGeneration() {
+    const btn = document.getElementById('btn-generate-content');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating…`; btn.disabled = true; lucide.createIcons();
+    try {
+      const selectVal = document.getElementById('studio-saas-select').value;
+      let profile = currentSaaSProfile;
+      if (selectVal !== 'current' && SEED_PROFILES[selectVal]) profile = SEED_PROFILES[selectVal];
+      if (!profile) { alert('Select a SaaS profile first. Go to SaaS Analyst tab.'); return; }
+      const payload = { saasProfile:profile, platform:currentChannel, customAngle:document.getElementById('studio-topic').value };
+      const res = await fetch('/api/generate-content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success && data.content) {
+        generatedContent = data.content; generatedHooks = data.hooks || [];
+        const editor = document.getElementById('studio-editor');
+        editor.value = data.content;
+        document.getElementById('char-counter').textContent = `${data.content.length} chars`;
+      } else { alert('Generation failed: ' + (data.error||'API error')); }
+    } catch(err) { alert('Error: ' + err.message); }
+    finally { btn.innerHTML = orig; btn.disabled = false; lucide.createIcons(); }
+  }
+
+  function applyHook(n) {
+    const hooks = generatedHooks; if (!hooks || !hooks[n-1]) return;
+    const editor = document.getElementById('studio-editor');
+    const lines = editor.value.split('\n');
+    lines[0] = hooks[n-1];
+    editor.value = lines.join('\n');
+    document.getElementById('char-counter').textContent = `${editor.value.length} chars`;
+  }
+
+  async function runMasterPolisher() {
+    const editor = document.getElementById('studio-editor');
+    if (!editor.value.trim()) return;
+    try {
+      const res = await fetch('/api/polish-content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ text:editor.value, platform:currentChannel }) });
+      const data = await res.json();
+      if (data.success && data.polished) { editor.value = data.polished; document.getElementById('char-counter').textContent = `${data.polished.length} chars`; }
+    } catch(err) { alert('Polish failed: ' + err.message); }
+  }
+
+  function copyGeneratedContent() {
+    navigator.clipboard.writeText(document.getElementById('studio-editor').value);
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-5 right-5 z-50 badge-green px-4 py-3 rounded-xl font-semibold text-sm shadow-lg';
+    toast.textContent = '✅ Copied to clipboard!';
+    document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000);
+  }
+
+  async function saveToPublishQueue() {
+    const content = document.getElementById('studio-editor').value.trim();
+    if (!content) { alert('Generate content first!'); return; }
+    const selectVal = document.getElementById('studio-saas-select').value;
+    const profile = currentSaaSProfile || SEED_PROFILES[selectVal];
+    try {
+      const res = await fetch('/api/posts/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ topic:profile?.name||'Marketing Content', content, channel:currentChannel }) });
+      const data = await res.json();
+      if (data.success) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 right-5 z-50 badge-green px-4 py-3 rounded-xl font-semibold text-sm shadow-lg';
+        toast.textContent = '✅ Saved to Publish Queue!';
+        document.body.appendChild(toast); setTimeout(() => toast.remove(), 2500);
+        loadQueue();
+      } else { alert('Save failed: ' + data.error); }
+    } catch(err) { alert(err.message); }
+  }
+
+  document.getElementById('studio-editor').addEventListener('input', function() {
+    document.getElementById('char-counter').textContent = `${this.value.length} chars`;
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PUBLISH QUEUE
+  // ═══════════════════════════════════════════════════════════════════════
+  async function loadQueue() {
+    const container = document.getElementById('posts-container');
+    container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm"><i data-lucide="loader-2" class="w-6 h-6 mx-auto mb-2 animate-spin"></i>Loading…</div>`;
+    lucide.createIcons();
+    try {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+      if (data.success && data.posts) {
+        document.getElementById('nav-queue-count').textContent = data.posts.length;
+        if (!data.posts.length) {
+          container.innerHTML = `<div class="text-center py-12 text-slate-400 text-sm"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 text-slate-200"></i>Queue is empty. Generate content and click "Queue" in Studio.</div>`;
+          lucide.createIcons(); return;
+        }
+        container.innerHTML = data.posts.map(post => `
+          <div class="card p-5 space-y-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-xs font-mono font-bold text-slate-500">#${post.id}</span>
+                <span class="text-sm font-semibold text-slate-800 truncate">${post.topic}</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded badge-blue uppercase flex-shrink-0">${post.channel||'linkedin'}</span>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full ${post.boss_approval ? 'badge-green' : 'badge-amber'}">
+                  ${post.boss_approval ? '✓ Approved' : '⏳ Pending'}
+                </span>
+                ${!post.boss_approval
+                  ? `<button onclick="approvePost(${post.id})" class="btn btn-success btn-sm">1-Click Approve</button>`
+                  : `<button onclick="alert('Post approved & synced with Buffer Dispatcher!')" class="btn btn-primary btn-sm">Dispatch</button>`
+                }
+              </div>
+            </div>
+            <pre class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto">${post.content}</pre>
+            <div class="text-[10px] text-slate-400 font-mono">${new Date(post.created_at).toLocaleString()}</div>
+          </div>
+        `).join('');
+      }
+    } catch(err) {
+      container.innerHTML = `<div class="text-center py-8 text-rose-500 text-sm font-mono">Failed to load: ${err.message}</div>`;
+    }
+    lucide.createIcons();
+  }
+
+  async function approvePost(id) {
+    try {
+      const res = await fetch('/api/posts/approve', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id }) });
+      const data = await res.json();
+      if (data.success) loadQueue();
+    } catch(e) { alert(e.message); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // AGENCY ROSTER
+  // ═══════════════════════════════════════════════════════════════════════
+  function loadRoster() {
+    renderRoster(AGENTS);
+  }
+
+  function filterRoster(cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      if (b.dataset.filter === cat) { b.className = 'filter-btn btn btn-primary btn-sm'; }
+      else { b.className = 'filter-btn btn btn-secondary btn-sm'; }
+    });
+    renderRoster(cat === 'ALL' ? AGENTS : AGENTS.filter(a => a.category === cat));
+  }
+
+  function renderRoster(agents) {
+    const grid = document.getElementById('roster-grid');
+    grid.innerHTML = agents.map(agent => `
+      <div class="agent-card card-hover" onclick="openAgentModal('${agent.id}')">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:${agent.color}18">
+            ${agent.emoji}
+          </div>
+          <div class="min-w-0">
+            <div class="font-bold text-slate-800 text-sm leading-tight">${agent.name}</div>
+            <div class="text-[10px] font-mono text-slate-400">${agent.model.split('/')[1]||agent.model}</div>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">${agent.role}</p>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full badge-green">● ACTIVE</span>
+          <span class="text-[10px] font-mono text-slate-400">${agent.category}</span>
+        </div>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  }
+
+  function openAgentModal(agentId) {
+    const agent = AGENTS.find(a => a.id === agentId); if (!agent) return;
+    selectedAgentId = agentId;
+    document.getElementById('am-emoji').textContent = agent.emoji;
+    document.getElementById('am-name').textContent = agent.name;
+    document.getElementById('am-role').textContent = agent.role;
+    document.getElementById('am-guidelines').innerHTML = `
+      <div class="text-xs font-semibold text-slate-700 mb-2">Agent Guidelines:</div>
+      ${agent.guidelines.map(g => `<div class="flex items-start gap-2 text-xs text-slate-600 mb-1"><span class="text-indigo-400 font-bold mt-0.5">•</span><span>${g}</span></div>`).join('')}
+    `;
+    document.getElementById('am-prompt').value = '';
+    document.getElementById('am-output').classList.add('hidden');
+    document.getElementById('agent-modal').classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function closeAgentModal() { document.getElementById('agent-modal').classList.add('hidden'); selectedAgentId = null; }
+
+  async function runAgentTask() {
+    const agent = AGENTS.find(a => a.id === selectedAgentId); if (!agent) return;
+    const prompt = document.getElementById('am-prompt').value.trim();
+    if (!prompt) { alert('Enter a task prompt for this agent.'); return; }
+    const btn = document.getElementById('am-btn-run');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Running…`; btn.disabled = true; lucide.createIcons();
+    try {
+      let profile = currentSaaSProfile || SEED_PROFILES['medisuite'];
+      const res = await fetch('/api/generate-content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ saasProfile:profile, platform:agent.id.includes('carousel')?'carousel':agent.id.includes('twitter')?'twitter':agent.id.includes('repurpose')?'repurpose':'linkedin', customAngle:prompt }) });
+      const data = await res.json();
+      if (data.success && data.content) {
+        document.getElementById('am-output-text').value = data.content;
+        document.getElementById('am-output').classList.remove('hidden');
+      } else { alert('Agent failed: ' + (data.error||'Unknown')); }
+    } catch(err) { alert(err.message); }
+    finally { btn.innerHTML = orig; btn.disabled = false; lucide.createIcons(); }
+  }
+
+  function sendAgentOutputToStudio() {
+    const output = document.getElementById('am-output-text').value;
+    document.getElementById('studio-editor').value = output;
+    closeAgentModal();
+    switchTab('studio');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // BOOT
+  // ═══════════════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    loadEcosystemStatus();
+    loadLeads();
+    loadQueue();
+    loadRoster();
+    // Set default profile
+    currentSaaSProfile = SEED_PROFILES['medisuite'];
+  });
   </script>
 </body>
 </html>

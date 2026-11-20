@@ -676,30 +676,6 @@ app.post('/api/analyze-saas', async (req: Request, res: Response) => {
   }
 });
 
-// Inbound Content Generation
-app.post('/api/generate-content', async (req: Request, res: Response) => {
-  try {
-    const { profile, platform, customAngle } = req.body;
-    if (!profile || !profile.name) {
-      return res.status(400).json({ success: false, error: 'Valid SaaS profile is required.' });
-    }
-
-    const content = await generateContentForSaaS(
-      profile,
-      platform || 'linkedin',
-      customAngle
-    );
-
-    res.json({
-      success: true,
-      platform: platform || 'linkedin',
-      content,
-    });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message || 'Content generation failed.' });
-  }
-});
-
 // Master Polish Endpoint
 app.post('/api/polish-content', (req: Request, res: Response) => {
   try {
@@ -1438,6 +1414,43 @@ app.get('/api/ecosystem/status', async (req: Request, res: Response) => {
     success: true,
     ecosystem: telemetry,
   });
+});
+
+// Alias: /api/analyse-saas → /api/analyze-saas (frontend typo-safe alias)
+app.post('/api/analyse-saas', async (req: Request, res: Response) => {
+  try {
+    const { name, category, description, url, targetAudience, keyFeatures, guarantee } = req.body;
+    const profile = synthesizeSaaS({ name, category, description, url, targetAudience, keyFeatures, guarantee });
+    res.json({ success: true, profile });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'SaaS analysis failed.' });
+  }
+});
+
+// Alias: generate-content also accepts saasProfile key
+app.post('/api/generate-content', async (req: Request, res: Response) => {
+  try {
+    const rawProfile = req.body.saasProfile || req.body.profile;
+    const platform = req.body.platform || 'linkedin';
+    const customAngle = req.body.customAngle;
+    if (!rawProfile || !rawProfile.name) {
+      return res.status(400).json({ success: false, error: 'Valid SaaS profile (saasProfile or profile key) is required.' });
+    }
+    const content = await generateContentForSaaS(rawProfile, platform, customAngle);
+    // Extract hooks if linkedin
+    const hooks: string[] = [];
+    if (platform === 'linkedin') {
+      const hookMatch = content.match(/Hook 1[^\n]*:\s*([^\n]+)/);
+      const hookMatch2 = content.match(/Hook 2[^\n]*:\s*([^\n]+)/);
+      const hookMatch3 = content.match(/Hook 3[^\n]*:\s*([^\n]+)/);
+      if (hookMatch) hooks.push(hookMatch[1].replace(/^•\s*/, ''));
+      if (hookMatch2) hooks.push(hookMatch2[1].replace(/^•\s*/, ''));
+      if (hookMatch3) hooks.push(hookMatch3[1].replace(/^•\s*/, ''));
+    }
+    res.json({ success: true, platform, content, hooks });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'Content generation failed.' });
+  }
 });
 
 // SPA Fallback Route
